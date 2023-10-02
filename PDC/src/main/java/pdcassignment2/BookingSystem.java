@@ -1,12 +1,13 @@
 /* Auckland University of Technology (AUT), COMP603 Program Design and Construction
  * 
- * Project 1 - Cinema Booking System
+ * Project 2 - Cinema Booking System
  * BookingSystem.Java - Assembles the program and contains the main method
  * 
  * @Authors Group #60 | Thomas Brears #20122554 & Rafi Yusaf-Horsfall #20119318
  * @Created August 2023
+ * @Modified October 2023
  */
-package pdcassignment1;
+package pdcassignment2;
 
 import java.util.*;
 
