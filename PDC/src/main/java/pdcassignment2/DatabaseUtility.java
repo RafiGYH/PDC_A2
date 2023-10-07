@@ -6,11 +6,13 @@
  * @Authors Group #60 | Thomas Brears #20122554 & Rafi Yusaf-Horsfall 20119318
  * @Created October 2023
  */
+
+//INSERT INTO Bookings (FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid)
+//VALUES ('John Doe', '123456789', 'john@example.com', '2023-10-03 14:00:00', 'Movie Title', 'Standard', 3, 30.00);
+
 package pdcassignment2;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DatabaseUtility {
 
@@ -18,37 +20,65 @@ public class DatabaseUtility {
     private static Connection conn = null;
 
     // Establish connection to the database
-    public static Connection connect() throws SQLException {
-        if (conn == null || conn.isClosed()) {
-            conn = DriverManager.getConnection(DB_URL);
+    public static Connection connect() throws DatabaseException {
+        try {
+            if (conn == null || conn.isClosed()) {
+                conn = DriverManager.getConnection(DB_URL);
+            }
+            return conn;
+        } catch (SQLException e) {
+            throw new DatabaseException("Error connecting to the database", e);
         }
-        return conn;
+    }
+    
+    public static void initialiseDatabase() throws DatabaseException {
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            
+            // Check if the Bookings table exists
+            ResultSet rs = conn.getMetaData().getTables(null, null, "BOOKINGS", null);
+            
+            if (!rs.next()) {
+                // Table does not exist, create it
+                String createTableSQL = "CREATE TABLE Bookings (" +
+                        "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
+                        "FullName VARCHAR(255)," +
+                        "PhoneNumber VARCHAR(15)," +
+                        "Email VARCHAR(255)," +
+                        "BookingTime TIMESTAMP," +
+                        "Movie VARCHAR(255)," +
+                        "CinemaType VARCHAR(50)," +
+                        "TotalTickets INT," +
+                        "TotalPaid DECIMAL(10, 2)" +
+                        ")";
+                stmt.executeUpdate(createTableSQL);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error initializing the database", e);
+        }
     }
 
     // Close the database connection
-    public static void closeConnection() throws SQLException {
-        if (conn != null && !conn.isClosed()) {
-            conn.close();
+    public static void closeConnection() throws DatabaseException {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error closing the database connection", e);
         }
     }
 
-    public static void shutdownDatabase() throws SQLException {
+    public static void shutdownDatabase() throws DatabaseException {
         try {
             DriverManager.getConnection("jdbc:derby:;shutdown=true");
         } catch (SQLException se) {
             if (!se.getSQLState().equals("XJ015")) {
-                throw se;
+                throw new DatabaseException("Error shutting down the database", se);
             }
         }
     }
     
-    /* Before exiting the application
-    try {
-        DatabaseUtility.shutdownDatabase();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }*/
-
     // TODO: Add methods for database interactions (CRUD operations)
     
 }

@@ -9,11 +9,12 @@
  */
 package pdcassignment2;
 
+import java.sql.SQLException;
 import java.util.*;
 
 public class BookingSystem {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
 
         Scanner scan = new Scanner(System.in);
         // Initialize cinemas, movies, shows, menu, and 2FileIO
@@ -48,13 +49,15 @@ public class BookingSystem {
 
         while (true) {
             try {
+                DatabaseUtility.initialiseDatabase(); // Initialize the database
+                
                 // First Screen: Welcome screen
                 int mainChoice = menu.displayMainMenu();
                 switch (mainChoice) {
                     case 1:
                         // Second Screen: Existing booking Query
                         menu.askForPhoneNumber();
-
+                        
                         Booking foundBooking = fileIORead.findBookingByPhoneNumber(menu.getPhoneNumber());
                         if (foundBooking != null) {
                             // Display booking details
@@ -68,19 +71,19 @@ public class BookingSystem {
                         int movieChoice = menu.displayMovieChoices(movies);
                         Movie selectedMovie = movies.get(movieChoice - 1);
                         Show selectedShow = selectedMovie.getShows().get(0);
-
+                        
                         // Fourth Screen: Ticket type
                         menu.displayTicketMenu();
                         BookingCalculator bookingCalculator = new BookingCalculator();
                         bookingCalculator.getUserInputAndCalculateTotal();
-
+                        
                         menu.askForName();
                         menu.askForPhoneNumber();
                         menu.askForEmail();
-
+                        
                         // Fifth Screen: Booking Details
                         menu.displayBookingConfirmation(bookingCalculator);
-
+                        
                         // Sixth Screen: Save/confirm booking
                         Booking newBooking = new Booking(menu, selectedMovie, selectedShow, selectedShow.getCinema(), bookingCalculator);
                         fileIO.makeBooking(newBooking);
@@ -94,6 +97,10 @@ public class BookingSystem {
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
+            } catch (DatabaseException e) {
+                e.printStackTrace(); // Log the exception
+                // Handle the exception, e.g., show an error message to the user
+                System.out.println("A database error occurred: " + e.getMessage());
             } catch (BookingException e) {
                 System.out.println("Booking error: " + e.getMessage());
             }

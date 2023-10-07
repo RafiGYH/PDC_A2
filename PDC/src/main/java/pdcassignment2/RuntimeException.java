@@ -17,6 +17,11 @@ public class RuntimeException extends Throwable {
         this.message = message;
     }
 
+    public RuntimeException(String message, Throwable cause) {
+        super(cause);  // Pass the cause to the superclass constructor
+        this.message = message;
+    }
+
     @Override
     public String getMessage() {
         return message;
