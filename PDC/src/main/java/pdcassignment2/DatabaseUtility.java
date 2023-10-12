@@ -131,8 +131,39 @@ public class DatabaseUtility {
     }
     }
     
+    //Update
+    public static void updateBooking(Booking booking) throws DatabaseException, SQLException{
+        try(Connection conn = connect())
+        {
+            String sql = "UPDATE Bookings SET FullName = ?, PhoneNumber = ?, Email = ?, BookingTime = ?, Movie = ?, CinemaType = ?, TotalTickets = ?, TotalPaid = ? WHERE ID = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, booking.getFullName());
+            stmt.setString(2, booking.getPhoneNumber());
+            stmt.setString(3, booking.getEmail());
+            stmt.setString(4, booking.getShowTime()); //Do we have a booking time or do u refer to the movie?
+            stmt.setString(5, booking.getMovieTitle());
+            stmt.setString(6, booking.getTicketType());//Cinema type we no have,  is that what u mean?
+            stmt.setInt(7, booking.getTicketQuantity());//switches to setInt
+            stmt.setDouble(8, booking.getTotalPrice());
+            stmt.executeUpdate();
+        } catch(SQLException e)
+        {
+            throw new DatabaseException("NA", e);
+        }
+    }
 
-
+    public static void deleteBooking(int id) throws DatabaseException, SQLException{
+        try(Connection conn = connect())
+        {//I think this is the SQL code for such an action, confirmed as of present
+            String sql ="DELETE FROM Booking WHERE ID = ?";
+             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+        }catch(SQLException e)
+        {
+            throw new DatabaseException("Database failed deletion", e);
+        }
+    }
 
 
 }
