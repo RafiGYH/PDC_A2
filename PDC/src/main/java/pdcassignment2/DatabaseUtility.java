@@ -80,5 +80,29 @@ public class DatabaseUtility {
     }
     
     // TODO: Add methods for database interactions (CRUD operations)
+    public static void insertB(Booking booking) throws DatabaseException, SQLException
+    {
+     try(Connection conn = connect())
+        {
+            //? are placeholders for para, that will be added to the SQL stat.
+            String sql = "INSERT INTO Bookings(FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid) VALUES (?, ?, ?, ?, ?, ?, ? , ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);//exec
+            stmt.setString(1, booking.getFullName());
+            stmt.setString(2, booking.getPhoneNumber());
+            stmt.setString(3, booking.getEmail());
+            stmt.setString(4, booking.getShowTime()); //Do we have a booking time or do u refer to the movie?
+            stmt.setString(5, booking.getMovieTitle());
+            stmt.setString(6, booking.getTicketType());//Cinema type we no have,  is that what u mean?
+            stmt.setInt(7, booking.getTicketQuantity());//switches to setInt
+            stmt.setDouble(8, booking.getTotalPrice());
+        } catch(SQLException e)
+        {
+            throw new DatabaseException("No booking added", e);
+        }
+
+    }
     
+    
+
+
 }
