@@ -151,7 +151,7 @@ public class DatabaseUtility {
             throw new DatabaseException("NA", e);
         }
     }
-
+    //D
     public static void deleteBooking(int id) throws DatabaseException, SQLException{
         try(Connection conn = connect())
         {//I think this is the SQL code for such an action, confirmed as of present
@@ -165,5 +165,8 @@ public class DatabaseUtility {
         }
     }
 
+
+
+    
 
 }

@@ -9,6 +9,8 @@
  */
 package pdcassignment2;
 
+import java.sql.SQLException;
+
 public class Booking {
 
     private String movieTitle;
@@ -34,6 +36,49 @@ public class Booking {
         this.email = menu.getEmail();
         this.totalPrice = bookingCalculator.getTotalPrice();
     }
+
+
+    public boolean createB() throws SQLException{
+        try{
+            DatabaseUtility.insertB(this);
+            return true;
+        }catch(DatabaseException e)
+        {
+            return false; //WE could add printStacktrace(); maybe
+        }
+    }
+
+    public Booking readBooking(int id)
+    {
+        try{
+            return DatabaseUtility.getBByID(id);
+        }catch(DatabaseException e)
+        {
+            return null;
+        }
+    }
+
+    public boolean updateBooking() throws SQLException{
+        try{
+            DatabaseUtility.updateBooking(this);
+            return true;
+        }catch(DatabaseException e)
+        {
+            return false;
+        }
+    }
+
+    public boolean deleteBooking(int id) throws SQLException
+    {
+        try{
+            DatabaseUtility.deleteBooking(id);
+            return true;
+        }catch(DatabaseException e)
+        {
+            return false;
+        }
+    }
+
 
     public String getMovieTitle() {
         return movieTitle;
