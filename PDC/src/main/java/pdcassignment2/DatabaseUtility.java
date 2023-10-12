@@ -103,7 +103,7 @@ public class DatabaseUtility {
     }
     
     //Read, inserts ID and retrieves data
-    public static getBByID(int id) throws DatabaseException
+    public static Booking getBByID(int id) throws DatabaseException
     {
         try(Connection conn = connect()){
             String sql = "SELECT * FROM Bookins WHERE ID = ?";
@@ -112,8 +112,8 @@ public class DatabaseUtility {
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
                 Booking booking = new Booking();
-            //We dont have an ID variable in booking class
-                booking.setId(rs.getInt("ID"));
+           
+                booking.setId(rs.getInt("ID")); //We dont have an ID variable in booking class
                 booking.setFullName(rs.getString("FullName"));
                 booking.setPhoneNumber(rs.getString("PhoneNumber"));
                 booking.setEmail(rs.getString("Email"));
@@ -123,7 +123,11 @@ public class DatabaseUtility {
                 booking.setTicketQuantity(rs.getInt("TotalTickets"));
                 booking.setTotalPrice(rs.getDouble("TotalPaid"));
                 return booking;
+            } else{
+                return null;
             }
+    }catch(SQLException e){
+        throw new DatabaseException("NA", e);
     }
     }
     
