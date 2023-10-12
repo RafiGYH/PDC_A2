@@ -67,6 +67,46 @@ public class Booking {
         return totalPrice;
     }
 
+    public void setMovieTitle(String movieTitle)
+    {
+        this.movieTitle = movieTitle;
+    }
+
+    public void setShowTime(String showTime)
+    {
+        this.showTime = showTime;
+    }
+
+    public void setTicketQuantity(int ticketQuantity)
+    {
+        this.ticketQuantity = ticketQuantity;
+    }
+
+    public void setPhoneNumber(String phoneNumber)
+    {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public void setTotalPrice(double totalPrice)
+    {
+        this.totalPrice = totalPrice;
+    }
+
+    public void setFullName(String fullName)
+    {
+        this.fullName = fullName;
+    }
+
+    public void setTicketType(String ticketType)
+    {
+        this.ticketType = ticketType;
+    }
+
     @Override
     public String toString() {
         return "Here are the details\n ---------------\n"

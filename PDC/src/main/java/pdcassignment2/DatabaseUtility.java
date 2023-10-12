@@ -41,7 +41,7 @@ public class DatabaseUtility {
             if (!rs.next()) {
                 // Table does not exist, create it
                 String createTableSQL = "CREATE TABLE Bookings (" +
-                        "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
+                        "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," + //unsure how to proceed with this
                         "FullName VARCHAR(255)," +
                         "PhoneNumber VARCHAR(15)," +
                         "Email VARCHAR(255)," +
@@ -102,7 +102,33 @@ public class DatabaseUtility {
 
     }
     
+    //Read, inserts ID and retrieves data
+    public static getBByID(int id) throws DatabaseException
+    {
+        try(Connection conn = connect()){
+            String sql = "SELECT * FROM Bookins WHERE ID = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                Booking booking = new Booking();
+            //We dont have an ID variable in booking class
+                booking.setId(rs.getInt("ID"));
+                booking.setFullName(rs.getString("FullName"));
+                booking.setPhoneNumber(rs.getString("PhoneNumber"));
+                booking.setEmail(rs.getString("Email"));
+                booking.setShowTime(rs.getString("BookingTime")); // Assuming it's stored as a String; you may need to adjust this
+                booking.setMovieTitle(rs.getString("Movie"));
+                booking.setTicketType(rs.getString("CinemaType"));
+                booking.setTicketQuantity(rs.getInt("TotalTickets"));
+                booking.setTotalPrice(rs.getDouble("TotalPaid"));
+                return booking;
+            }
+    }
+    }
     
+
+
 
 
 }
