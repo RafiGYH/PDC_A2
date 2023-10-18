@@ -14,9 +14,14 @@ import java.util.List;
 
 public class Movie {
 
+    private int id;
     private String title;
     private String description;
     private List<Show> shows;
+
+    public Movie() {
+        // No-argument constructor
+    }
 
     public Movie(String title, String description) {
         this.title = title;
@@ -24,24 +29,35 @@ public class Movie {
         this.shows = new ArrayList<>();
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    // Getter for Title
     public String getTitle() {
         return title;
     }
 
+    // Setter for Title
     public void setTitle(String title) {
         this.title = title;
     }
 
+    // Getter for Description
     public String getDescription() {
         return description;
     }
 
+    // Setter for Description
     public void setDescription(String description) {
         this.description = description;
     }
 
-    // Method to add a new movie showtime 
+    // Method to add a new movie showtime
     public void addShow(Show show) {
         shows.add(show);
     }

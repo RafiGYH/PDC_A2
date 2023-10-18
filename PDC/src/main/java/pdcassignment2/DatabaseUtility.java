@@ -9,17 +9,17 @@
 
 //INSERT INTO Bookings (FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid)
 //VALUES ('John Doe', '123456789', 'john@example.com', '2023-10-03 14:00:00', 'Movie Title', 'Standard', 3, 30.00);
-
 package pdcassignment2;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseUtility {
 
     private static final String DB_URL = "jdbc:derby:pdc_a2;create=true";
     private static Connection conn = null;
 
-    // Establish connection to the database
     public static Connection connect() throws DatabaseException {
         try {
             if (conn == null || conn.isClosed()) {
@@ -30,18 +30,18 @@ public class DatabaseUtility {
             throw new DatabaseException("Error connecting to the database", e);
         }
     }
-    
+
     public static void initialiseDatabase() throws DatabaseException {
         try (Connection conn = connect();
              Statement stmt = conn.createStatement()) {
-            
+
             // Check if the Bookings table exists
             ResultSet rs = conn.getMetaData().getTables(null, null, "BOOKINGS", null);
-            
+
             if (!rs.next()) {
                 // Table does not exist, create it
                 String createTableSQL = "CREATE TABLE Bookings (" +
-                        "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," + //unsure how to proceed with this
+                        "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
                         "FullName VARCHAR(255)," +
                         "PhoneNumber VARCHAR(15)," +
                         "Email VARCHAR(255)," +
@@ -53,12 +53,37 @@ public class DatabaseUtility {
                         ")";
                 stmt.executeUpdate(createTableSQL);
             }
+
+            // Create the Movies table
+            rs = conn.getMetaData().getTables(null, null, "MOVIES", null);
+            if (!rs.next()) {
+                String createMoviesTableSQL = "CREATE TABLE Movies (" +
+                        "MovieID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
+                        "Title VARCHAR(255)," +
+                        "Description CLOB" +
+                        ")";
+                stmt.executeUpdate(createMoviesTableSQL);
+            }
+
+            // Create the Shows table
+            rs = conn.getMetaData().getTables(null, null, "SHOWS", null);
+            if (!rs.next()) {
+                String createShowsTableSQL = "CREATE TABLE Shows (" +
+                        "ShowID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
+                        "MovieID INT," +
+                        "Time VARCHAR(20)," +
+                        "CinemaType VARCHAR(50)," +
+                        "AvailableTickets INT," +
+                        "FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)" +
+                        ")";
+                stmt.executeUpdate(createShowsTableSQL);
+            }
+
         } catch (SQLException e) {
             throw new DatabaseException("Error initializing the database", e);
         }
     }
 
-    // Close the database connection
     public static void closeConnection() throws DatabaseException {
         try {
             if (conn != null && !conn.isClosed()) {
@@ -78,95 +103,130 @@ public class DatabaseUtility {
             }
         }
     }
-    
-    // TODO: Add methods for database interactions (CRUD operations)
-    public static void insertB(Booking booking) throws DatabaseException, SQLException
-    {
-     try(Connection conn = connect())
-        {
-            //? are placeholders for para, that will be added to the SQL stat.
-            String sql = "INSERT INTO Bookings(FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid) VALUES (?, ?, ?, ?, ?, ?, ? , ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);//exec
+
+    public static void insertBooking(Booking booking) throws DatabaseException {
+        try (Connection conn = connect()) {
+            String sql = "INSERT INTO Bookings(FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, booking.getFullName());
             stmt.setString(2, booking.getPhoneNumber());
             stmt.setString(3, booking.getEmail());
-            stmt.setString(4, booking.getShowTime()); //Do we have a booking time or do u refer to the movie?
+            stmt.setString(4, booking.getShowTime());
             stmt.setString(5, booking.getMovieTitle());
-            stmt.setString(6, booking.getTicketType());//Cinema type we no have,  is that what u mean?
-            stmt.setInt(7, booking.getTicketQuantity());//switches to setInt
+            stmt.setString(6, booking.getTicketType());
+            stmt.setInt(7, booking.getTicketQuantity());
             stmt.setDouble(8, booking.getTotalPrice());
-        } catch(SQLException e)
-        {
-            throw new DatabaseException("No booking added", e);
+            stmt.executeUpdate(); // Execute the INSERT operation
+        } catch (SQLException e) {
+            throw new DatabaseException("Error adding a booking", e);
         }
-
     }
-    
-    //Read, inserts ID and retrieves data
-    public static Booking getBByID(int id) throws DatabaseException
-    {
-        try(Connection conn = connect()){
-            String sql = "SELECT * FROM Bookins WHERE ID = ?";
+
+    public static Booking findBookingByPhoneNumber(String phoneNumber) throws DatabaseException {
+        try (Connection conn = connect()) {
+            String sql = "SELECT * FROM Bookings WHERE PhoneNumber = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, id);
+            stmt.setString(1, phoneNumber);
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 Booking booking = new Booking();
-           
-                booking.setId(rs.getInt("ID")); //We dont have an ID variable in booking class
+                booking.setId(rs.getInt("ID"));
                 booking.setFullName(rs.getString("FullName"));
                 booking.setPhoneNumber(rs.getString("PhoneNumber"));
                 booking.setEmail(rs.getString("Email"));
-                booking.setShowTime(rs.getString("BookingTime")); // Assuming it's stored as a String; you may need to adjust this
+                booking.setShowTime(rs.getString("BookingTime"));
                 booking.setMovieTitle(rs.getString("Movie"));
                 booking.setTicketType(rs.getString("CinemaType"));
                 booking.setTicketQuantity(rs.getInt("TotalTickets"));
                 booking.setTotalPrice(rs.getDouble("TotalPaid"));
                 return booking;
-            } else{
+            } else {
                 return null;
             }
-    }catch(SQLException e){
-        throw new DatabaseException("NA", e);
+        } catch (SQLException e) {
+            throw new DatabaseException("Error retrieving booking by phone number", e);
+        }
     }
+
+    public static void insertMovie(Movie movie) throws DatabaseException {
+        if (!movieExists(movie.getTitle())) {
+            try (Connection conn = connect()) {
+                String sql = "INSERT INTO Movies(Title, Description) VALUES (?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, movie.getTitle());
+                stmt.setString(2, movie.getDescription());
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new DatabaseException("Error adding a movie", e);
+            }
+        } else {
+            System.out.println("Movie '" + movie.getTitle() + "' already exists in the database.");
+        }
     }
-    
-    //Update
-    public static void updateBooking(Booking booking) throws DatabaseException, SQLException{
-        try(Connection conn = connect())
-        {
-            String sql = "UPDATE Bookings SET FullName = ?, PhoneNumber = ?, Email = ?, BookingTime = ?, Movie = ?, CinemaType = ?, TotalTickets = ?, TotalPaid = ? WHERE ID = ?";
+
+    private static boolean movieExists(String title) throws DatabaseException {
+        try (Connection conn = connect()) {
+            String sql = "SELECT * FROM Movies WHERE Title = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, booking.getFullName());
-            stmt.setString(2, booking.getPhoneNumber());
-            stmt.setString(3, booking.getEmail());
-            stmt.setString(4, booking.getShowTime()); //Do we have a booking time or do u refer to the movie?
-            stmt.setString(5, booking.getMovieTitle());
-            stmt.setString(6, booking.getTicketType());//Cinema type we no have,  is that what u mean?
-            stmt.setInt(7, booking.getTicketQuantity());//switches to setInt
-            stmt.setDouble(8, booking.getTotalPrice());
-            stmt.executeUpdate();
-        } catch(SQLException e)
-        {
-            throw new DatabaseException("NA", e);
-        }
-    }
-    //D
-    public static void deleteBooking(int id) throws DatabaseException, SQLException{
-        try(Connection conn = connect())
-        {//I think this is the SQL code for such an action, confirmed as of present
-            String sql ="DELETE FROM Booking WHERE ID = ?";
-             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, id);
+            stmt.setString(1, title);
             ResultSet rs = stmt.executeQuery();
-        }catch(SQLException e)
-        {
-            throw new DatabaseException("Database failed deletion", e);
+            return rs.next();
+        } catch (SQLException e) {
+            throw new DatabaseException("Error checking if movie exists", e);
         }
     }
 
+    public static List<Movie> getAllMovies() throws DatabaseException {
+        List<Movie> movies = new ArrayList<>();
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            String selectSQL = "SELECT * FROM Movies";
+            ResultSet rs = stmt.executeQuery(selectSQL);
+            while (rs.next()) {
+                Movie movie = new Movie();
+                movie.setMovieID(rs.getInt("MovieID"));
+                movie.setTitle(rs.getString("Title"));
+                movie.setDescription(rs.getString("Description"));
+                movies.add(movie);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error retrieving movies", e);
+        }
+        return movies;
+    }
 
+    public static void insertShow(Show show) throws DatabaseException {
+        try (Connection conn = connect()) {
+            String sql = "INSERT INTO Shows(MovieID, Time, CinemaType, AvailableTickets) VALUES (?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, show.getMovie().getMovieID());
+            stmt.setString(2, show.getTime());
+            stmt.setString(3, show.getCinemaType());
+            stmt.setInt(4, show.getAvailableTickets());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Error adding a show", e);
+        }
+    }
 
-    
-
+    public static List<Show> getShowsByMovie(Movie movie) throws DatabaseException {
+        List<Show> shows = new ArrayList<>();
+        try (Connection conn = connect()) {
+            String sql = "SELECT * FROM Shows WHERE MovieID = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, movie.getMovieID());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Show show = new Show(movie);
+                show.setShowID(rs.getInt("ShowID"));
+                show.setTime(rs.getString("Time"));
+                show.setCinemaType(rs.getString("CinemaType"));
+                show.setAvailableTickets(rs.getInt("AvailableTickets"));
+                shows.add(show);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error retrieving shows for a movie", e);
+        }
+        return shows;
+    }
 }

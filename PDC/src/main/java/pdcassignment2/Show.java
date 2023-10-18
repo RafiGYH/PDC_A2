@@ -11,10 +11,10 @@ package pdcassignment2;
 
 public class Show {
 
-    private final Movie movie;
-    private final String time;
-    private final Cinema cinema;
-    private final int totalSeats;
+    private Movie movie;
+    private String time;
+    private Cinema cinema;
+    private int totalSeats;
     private int bookedSeats;
 
     public Show(Movie movie, String time, Cinema cinema, int totalSeats) {
@@ -25,25 +25,48 @@ public class Show {
         this.bookedSeats = 0;
     }
 
-    // Getter and setters
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
+    }
+
     public String getTime() {
         return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public Cinema getCinema() {
         return cinema;
     }
 
+    public void setCinema(Cinema cinema) {
+        this.cinema = cinema;
+    }
+
     public int getTotalSeats() {
         return totalSeats;
+    }
+
+    public void setTotalSeats(int totalSeats) {
+        this.totalSeats = totalSeats;
     }
 
     public int getBookedSeats() {
         return bookedSeats;
     }
 
+    public void setBookedSeats(int bookedSeats) {
+        this.bookedSeats = bookedSeats;
+    }
+
     public int getAvailableSeats() {
-        return totalSeats - bookedSeats; // Calculate and return available seats
+        return totalSeats - bookedSeats;
     }
 
     public boolean hasAvailableSeats() {

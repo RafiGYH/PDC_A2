@@ -13,6 +13,7 @@ import java.sql.SQLException;
 
 public class Booking {
 
+    private int id;
     private String movieTitle;
     private String showTime;
     private String ticketType;
@@ -23,158 +24,151 @@ public class Booking {
     private double totalPrice;
 
     public Booking() {
-
+        // Default constructor
     }
 
-    public Booking(Menu menu, Movie movie, Show show, Cinema cinema, BookingCalculator bookingCalculator) throws BookingException {
-        this.movieTitle = movie.getTitle();
-        this.showTime = show.getTime();
-        this.ticketType = bookingCalculator.getTicketType();
-        this.ticketQuantity = bookingCalculator.getTotalTickets();
-        this.fullName = menu.getFullName();
-        this.phoneNumber = menu.getPhoneNumber();
-        this.email = menu.getEmail();
-        this.totalPrice = bookingCalculator.getTotalPrice();
+    public Booking(String movieTitle, String showTime, String ticketType, int ticketQuantity,
+                   String fullName, String phoneNumber, String email, double totalPrice) {
+        this.movieTitle = movieTitle;
+        this.showTime = showTime;
+        this.ticketType = ticketType;
+        this.ticketQuantity = ticketQuantity;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.totalPrice = totalPrice;
     }
 
-
-    public boolean createB() throws SQLException{
-        try{
-            DatabaseUtility.insertB(this);
-            return true;
-        }catch(DatabaseException e)
-        {
-            return false; //WE could add printStacktrace(); maybe
+    public boolean create() {
+        try {
+            return DatabaseUtility.insertB(this);
+        } catch (DatabaseException | SQLException e) {
+            return false;
         }
     }
 
-    public Booking readBooking(int id)
-    {
-        try{
+    public static Booking read(int id) {
+        try {
             return DatabaseUtility.getBByID(id);
-        }catch(DatabaseException e)
-        {
+        } catch (DatabaseException e) {
             return null;
         }
     }
 
-    public boolean updateBooking() throws SQLException{
-        try{
-            DatabaseUtility.updateBooking(this);
-            return true;
-        }catch(DatabaseException e)
-        {
+    public boolean update() {
+        try {
+            return DatabaseUtility.updateBooking(this);
+        } catch (DatabaseException | SQLException e) {
             return false;
         }
     }
 
-    public boolean deleteBooking(int id) throws SQLException
-    {
-        try{
-            DatabaseUtility.deleteBooking(id);
-            return true;
-        }catch(DatabaseException e)
-        {
+    public boolean delete() {
+        try {
+            return DatabaseUtility.deleteBooking(id);
+        } catch (DatabaseException | SQLException e) {
             return false;
         }
     }
 
+    // Getters and setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getMovieTitle() {
         return movieTitle;
+    }
+
+    public void setMovieTitle(String movieTitle) {
+        this.movieTitle = movieTitle;
     }
 
     public String getShowTime() {
         return showTime;
     }
 
+    public void setShowTime(String showTime) {
+        this.showTime = showTime;
+    }
+
     public String getTicketType() {
         return ticketType;
+    }
+
+    public void setTicketType(String ticketType) {
+        this.ticketType = ticketType;
     }
 
     public int getTicketQuantity() {
         return ticketQuantity;
     }
 
+    public void setTicketQuantity(int ticketQuantity) {
+        this.ticketQuantity = ticketQuantity;
+    }
+
     public String getFullName() {
         return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setMovieTitle(String movieTitle)
-    {
-        this.movieTitle = movieTitle;
-    }
-
-    public void setShowTime(String showTime)
-    {
-        this.showTime = showTime;
-    }
-
-    public void setTicketQuantity(int ticketQuantity)
-    {
-        this.ticketQuantity = ticketQuantity;
-    }
-
-    public void setPhoneNumber(String phoneNumber)
-    {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
-
-    public void setTotalPrice(double totalPrice)
-    {
+    public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
-    }
-
-    public void setFullName(String fullName)
-    {
-        this.fullName = fullName;
-    }
-
-    public void setTicketType(String ticketType)
-    {
-        this.ticketType = ticketType;
     }
 
     @Override
     public String toString() {
-        return "Here are the details\n ---------------\n"
-                + " Name:     " + fullName + "\n "
-                + "Number:   " + phoneNumber + "\n "
-                + "Email:    " + email + "\n "
-                + ticketQuantity + "x " + ticketType + " Tickets to " + movieTitle + " at " + showTime + "\n ";
+        return "Booking ID: " + id + "\n" +
+               "Name: " + fullName + "\n" +
+               "Phone Number: " + phoneNumber + "\n" +
+               "Email: " + email + "\n" +
+               ticketQuantity + "x " + ticketType + " Tickets for " + movieTitle + " at " + showTime + "\n" +
+               "Total Price: $" + totalPrice;
     }
 
     public static Booking fromString(String str) {
         String[] parts = str.split(",");
-        if (parts.length < 8) {
+        if (parts.length != 8) {
             return null;
         }
         Booking booking = new Booking();
-        booking.fullName = parts[0].trim();
-        booking.phoneNumber = parts[1].trim();
-        booking.email = parts[2].trim();
-        booking.showTime = parts[3].trim();
-        booking.movieTitle = parts[4].trim();
-        booking.ticketType = parts[5].trim();
-        booking.ticketQuantity = Integer.parseInt(parts[6].trim());
-
+        booking.id = Integer.parseInt(parts[0].trim());
+        booking.fullName = parts[1].trim();
+        booking.phoneNumber = parts[2].trim();
+        booking.email = parts[3].trim();
+        booking.showTime = parts[4].trim();
+        booking.movieTitle = parts[5].trim();
+        booking.ticketType = parts[6].trim();
+        booking.ticketQuantity = Integer.parseInt(parts[7].trim());
         return booking;
     }
 }
