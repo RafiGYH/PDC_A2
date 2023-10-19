@@ -22,13 +22,23 @@ public class BookingSystem {
         StandardCinema cinema2 = new StandardCinema("Cinema 2", 90);
         PremiumCinema cinema3 = new PremiumCinema("Cinema 3", 90, 55);
 
-        Show show1 = new Show("Chrono Nexu", "11:30 AM", cinema1, 100);
-        Show show2 = new Show("Whispers in the Mist", "3:00 PM", cinema2, 100);
-        Show show3 = new Show("Skyward Odyssey", "2:00 PM", cinema3, 100);
+        // Create Movie objects
+        Movie chronoNexu = new Movie("Chrono Nexu", "A physicist becomes trapped in a maze of alternative realities as a result of "
+                + "his research on alternate universes. In this surreal sci-fi thriller"
+                + " the protagonist races against time to discover the secret of the portals.");
+        Movie whispersInTheMist = new Movie("Whispers in the Mist", "Dark secrets in a mountain town are revealed by eerie whispers from an endless mist."
+                + "To escape the gripping psychological nightmare, strangers must face their pasts and one another.");
+        Movie skywardOdyssey = new Movie("Skyward Odyssey", "A diverse crew navigates cosmic obstacles in pursuit of a new home while the Earth disintegrates."
+                + "\"Skyward Odyssey\" is a grand story about cooperation, hope, and interstellar travel.");
+
+        // Create Show objects using the Movie objects
+        Show show1 = new Show(chronoNexu, "11:30 AM", cinema1, 100);
+        Show show2 = new Show(whispersInTheMist, "3:00 PM", cinema2, 100);
+        Show show3 = new Show(skywardOdyssey, "2:00 PM", cinema3, 100);
 
         // Initialize the menu
         Menu menu = new Menu();
-        
+
         // Initialize the database
         DatabaseUtility.initialiseDatabase();
 
@@ -51,10 +61,12 @@ public class BookingSystem {
                         break;
                     case 2:
                         // Third Screen: Show selection
-                        int movieChoice = menu.displayMovieChoices();
-                        Movie selectedMovie = DatabaseUtility.getAllMovies().get(movieChoice - 1);
+                        List<Movie> movies = DatabaseUtility.getAllMovies(); // Retrieve movies from the database
+                        int movieChoice = menu.displayMovieChoices(movies);  // Pass the movies list to the method
+                        Movie selectedMovie = movies.get(movieChoice - 1);
 
-                        List<Show> availableShows = new ArrayList<>(DatabaseUtility.getShowsByMovie(selectedMovie));
+                        // Retrieve the list of shows for the selected movie
+                        List<Show> availableShows = DatabaseUtility.getShowsByMovie(selectedMovie);
 
                         // Fourth Screen: Ticket type
                         menu.displayTicketMenu();
@@ -70,10 +82,17 @@ public class BookingSystem {
 
                         // Sixth Screen: Save/confirm booking
                         Show selectedShow = menu.selectShow(availableShows);
+                        String cinemaType = selectedShow.getCinema().getClass().getSimpleName();
+                        int ticketQuantity = bookingCalculator.getTotalTickets();
                         Booking newBooking = new Booking(
-                                menu.getFullName(), menu.getPhoneNumber(), menu.getEmail(),
-                                selectedShow.getTime(), selectedMovie.getTitle(),
-                                selectedShow.getCinemaType(), bookingCalculator.getTotalPrice()
+                                selectedMovie.getTitle(),
+                                selectedShow.getTime(),
+                                cinemaType,
+                                ticketQuantity,
+                                menu.getFullName(),
+                                menu.getPhoneNumber(),
+                                menu.getEmail(),
+                                bookingCalculator.getTotalPrice()
                         );
                         DatabaseUtility.insertBooking(newBooking);
                         System.out.println("\n------------------\nBooking Confirmed\nSee you soon \n------------------\n");
@@ -90,8 +109,6 @@ public class BookingSystem {
                 e.printStackTrace(); // Log the exception
                 // Handle the exception, e.g., show an error message to the user
                 System.out.println("A database error occurred: " + e.getMessage());
-            } catch (BookingException e) {
-                System.out.println("Booking error: " + e.getMessage());
             }
         }
     }

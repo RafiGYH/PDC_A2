@@ -28,6 +28,14 @@ public class Movie {
         this.description = description;
         this.shows = new ArrayList<>();
     }
+    
+    public int getMovieID() {
+    return id;
+    }
+    
+    public void setMovieID(int id) {
+    this.id = id;
+    }
 
     public int getId() {
         return id;

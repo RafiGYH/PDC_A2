@@ -39,40 +39,23 @@ public class Booking {
         this.totalPrice = totalPrice;
     }
 
-    public boolean create() {
-        try {
-            return DatabaseUtility.insertB(this);
-        } catch (DatabaseException | SQLException e) {
-            return false;
-        }
+    public boolean create() throws DatabaseException {
+            return DatabaseUtility.insertBooking(this);
     }
 
-    public static Booking read(int id) {
-        try {
-            return DatabaseUtility.getBByID(id);
-        } catch (DatabaseException e) {
-            return null;
-        }
+    public static Booking read(int id) throws DatabaseException {
+            return DatabaseUtility.getBookingByID(id); 
     }
 
-    public boolean update() {
-        try {
+    public boolean update() throws DatabaseException {
             return DatabaseUtility.updateBooking(this);
-        } catch (DatabaseException | SQLException e) {
-            return false;
-        }
     }
 
-    public boolean delete() {
-        try {
-            return DatabaseUtility.deleteBooking(id);
-        } catch (DatabaseException | SQLException e) {
-            return false;
-        }
-    }
+    public boolean delete() throws DatabaseException {
+            return DatabaseUtility.deleteBooking(id); 
+   }
 
     // Getters and setters
-
     public int getId() {
         return id;
     }

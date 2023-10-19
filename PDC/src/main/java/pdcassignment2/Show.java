@@ -11,9 +11,11 @@ package pdcassignment2;
 
 public class Show {
 
+    private int showID; // Add this attribute
     private Movie movie;
     private String time;
     private Cinema cinema;
+    private String cinemaType; // Add this attribute
     private int totalSeats;
     private int bookedSeats;
 
@@ -66,6 +68,26 @@ public class Show {
     }
 
     public int getAvailableSeats() {
+        return totalSeats - bookedSeats;
+    }
+    
+    public void setShowID(int showID) {
+        this.showID = showID;
+    }
+
+    public int getShowID() {
+        return showID;
+    }
+
+    public void setCinemaType(String cinemaType) {
+        this.cinemaType = cinemaType;
+    }
+
+    public String getCinemaType() {
+        return cinemaType;
+    }
+
+    public int getAvailableTickets() {
         return totalSeats - bookedSeats;
     }
 
