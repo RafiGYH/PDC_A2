@@ -56,6 +56,18 @@ public class Menu {
     return userInputOptions(movies.size() + 1);
     }
 
+    public Show selectShow(List<Show> availableShows) {
+    System.out.println("\nPlease select a show time:");
+
+    for (int i = 0; i < availableShows.size(); i++) {
+        Show show = availableShows.get(i);
+        System.out.println("Press " + (i + 1) + " for " + show.getTime() + " in " + show.getCinema().getClass().getSimpleName());
+    }
+
+    int choice = userInputOptions(availableShows.size());
+    return availableShows.get(choice - 1);
+}
+
     
     public void displayTicketMenu()
     {
