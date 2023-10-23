@@ -91,25 +91,43 @@ public class Menu {
         userInputOptions(2);
     }
 
-    public void askForPhoneNumber()
-    {
-        System.out.print("What is your Phone Number? ");
-        String number = scan.nextLine();
-        setPhoneNumber(number);
+    public void askForPhoneNumber() {
+        while (true) {
+            System.out.print("What is your Phone Number? ");
+            String number = scan.nextLine();
+            if (number.matches("\\d{10}")) {
+                setPhoneNumber(number);
+                break;
+            } else {
+                System.out.println("Invalid phone number. Please enter a 10-digit number.");
+            }
+        }
     }
     
-    public void askForName()
-    {
-        System.out.print("What is your full name? ");
-        String test = scan.nextLine();
-        setFullName(test);
+    public void askForName() {
+        while (true) {
+            System.out.print("What is your full name? ");
+            String name = scan.nextLine();
+            if (name.matches("[a-zA-Z]+ [a-zA-Z]+")) {
+                setFullName(name);
+                break;
+            } else {
+                System.out.println("Invalid name. Please enter your first and last name.");
+            }
+        }
     }
     
-    public void askForEmail()
-    {
-        System.out.print("What is your email address? ");
-        String Email = scan.nextLine();
-        setEmail(Email);
+    public void askForEmail() {
+        while (true) {
+            System.out.print("What is your email address? ");
+            String email = scan.nextLine();
+            if (email.matches("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")) {
+                setEmail(email);
+                break;
+            } else {
+                System.out.println("Invalid email address. Please enter a valid email.");
+            }
+        }
     }
     
     public void setFullName(String name)

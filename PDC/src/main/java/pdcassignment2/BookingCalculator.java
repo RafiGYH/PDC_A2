@@ -71,7 +71,7 @@ public class BookingCalculator {
         return ticketType;
     }
 
-// Get user input, then calculate and display total price
+    // Get user input, then calculate and display total price
     public void getUserInputAndCalculateTotal() {
         Scanner scanner = new Scanner(System.in);
         DecimalFormat currencyFormat = new DecimalFormat("#0.00");
@@ -80,15 +80,28 @@ public class BookingCalculator {
             try {
                 System.out.print("Number of adult tickets required? ");
                 int numAdults = scanner.nextInt();
+                if (numAdults <= 0) {
+                    System.out.println("Invalid input. Number of adult tickets must be at least 1.");
+                    continue;
+                }
+
                 System.out.print("Number of child tickets required? ");
                 int numChildren = scanner.nextInt();
+                if (numChildren < 0) {
+                    System.out.println("Invalid input. Number of child tickets can't be negative.");
+                    continue;
+                }
 
                 // Calculate the total number of tickets
                 setTotalTickets(numAdults + numChildren);
 
-                // Cinema typee
+                // Cinema type
                 System.out.print("Enter the cinema type (1 for Standard, 2 for Premium): ");
                 int cinemaChoice = scanner.nextInt();
+                if (cinemaChoice != 1 && cinemaChoice != 2) {
+                    System.out.println("Invalid input. Please enter 1 for Standard or 2 for Premium.");
+                    continue;
+                }
 
                 Cinema cinema;
                 switch (cinemaChoice) {
@@ -127,24 +140,25 @@ public class BookingCalculator {
 
                 } else {
                     System.out.println("Sorry, there are not enough seats available!");
-                    totalTickets = 0; //Reloop
+                    totalTickets = 0; // Reloop
                 }
 
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a valid number.");
+                scanner.nextLine(); // clear the buffer
             } catch (NoSuchElementException e) {
                 System.out.println("No input provided. Please try again.");
             }
         }
     }
 
-// Valid promo codes
+    // Valid promo codes
     private boolean isValidPromoCode(String promoCodeValue) {
         List<String> validPromoCodes = Arrays.asList("F5", "F2", "F10", "P10", "P20", "P5", "P2");
         return validPromoCodes.contains(promoCodeValue);
     }
 
-// Request promo code
+    // Request promo code
     private PromoCode getPromoCodeFromUser(Scanner scanner) {
         while (true) {
             try {
@@ -153,23 +167,35 @@ public class BookingCalculator {
 
                 if (promoCodeAnswer.equalsIgnoreCase("yes")) { // If they have a promo code
                     System.out.print("Please enter the promo code: ");
-                    String code = scanner.next().toUpperCase();
+                    String code = scanner.next().toUpperCase().trim();
 
-                    if (isValidPromoCode(code)) {
-                        char codeType = code.charAt(0);
-                        double discountAmount = Double.parseDouble(code.substring(1));
+                    if (code.length() < 2 || !(code.startsWith("F") || code.startsWith("P"))) {
+                        System.out.println("Invalid promo code format. Promo code should start with 'F' or 'P' followed by a number.");
+                        continue;
+                    }
 
-                        System.out.println("Promo Code " + code + " Added");
-
-                        // Fixed dollar discount
-                        if (codeType == 'F') {
-                            return new FixedDiscountPromo(discountAmount);
-                        } // Percentage discount
-                        else if (codeType == 'P') {
-                            return new PercentageDiscountPromo(discountAmount);
-                        }
-                    } else {
+                    if (!isValidPromoCode(code)) {
                         System.out.println("\n--------------------\n Invalid Promo Code \n--------------------\n");
+                        continue;
+                    }
+
+                    char codeType = code.charAt(0);
+                    double discountAmount;
+                    try {
+                        discountAmount = Double.parseDouble(code.substring(1));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid promo code format. Please enter a valid promo code.");
+                        continue;
+                    }
+
+                    System.out.println("Promo Code " + code + " Added");
+
+                    // Fixed dollar discount
+                    if (codeType == 'F') {
+                        return new FixedDiscountPromo(discountAmount);
+                    } // Percentage discount
+                    else if (codeType == 'P') {
+                        return new PercentageDiscountPromo(discountAmount);
                     }
                 } else if (promoCodeAnswer.equalsIgnoreCase("no")) {
                     // No promo code - Exit loop
@@ -179,14 +205,12 @@ public class BookingCalculator {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a valid response.");
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid promo code format. Please enter a valid promo code.");
+                scanner.nextLine(); // clear the buffer
             }
         }
 
         return null;
     }
-
     //Getters and Setters
     public double getTotalPrice() {
         return totalPrice;
