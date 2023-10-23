@@ -97,6 +97,10 @@ public class Show {
 
     // Book a certain number of seats for the show
     public void bookSeats(int numSeats) throws BookingException {
+        if (numSeats > cinema.getBookingLimit()) {
+            throw new BookingException("Booking exceeds limit for this cinema.");
+        }
+        
         if (numSeats <= 0) {
             throw new BookingException("Invalid number of seats.");
         }
@@ -116,7 +120,7 @@ public class Show {
 
     // Check if the show is fully booked
     public boolean isFullyBooked() {
-        return bookedSeats >= totalSeats || !cinema.hasAvailableSeats();
+        return this.bookedSeats >= this.cinema.getBookingLimit();
     }
 
     @Override

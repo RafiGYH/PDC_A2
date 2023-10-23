@@ -25,8 +25,13 @@ public class BookingCalculator {
     double discountAmount;
     private int totalTickets = 0;
 
-// Calculate total price with the number of adults, children, cinema type, and promo code
+    // Calculate total price with the number of adults, children, cinema type, and promo code
     public double calculateTotalPrice(int numAdults, int numChildren, PromoCode promoCode, Cinema cinema) {
+        
+        if (numAdults < 0 || numChildren < 0) {
+            return 0.0; // Return $0 for negative ticket numbers
+        }
+
         try {
             if (cinema instanceof StandardCinema) {
                 double totalAdultPrice = numAdults * ADULT_TICKET_PRICE;
@@ -41,12 +46,20 @@ public class BookingCalculator {
                 setTicketType("Premium");
             }
 
+            if (promoCode != null) {
+                totalPrice = promoCode.discount(totalPrice);
+                if (totalPrice < 0) {
+                    totalPrice = 0; // Ensure total price is not negative after applying discount
+                }
+            }
+
             return totalPrice;
         } catch (ArithmeticException e) {
             System.out.println("An error occurred during price calculation: " + e.getMessage());
             return 0.0;
         }
     }
+
 
     public String ticketType;
 
