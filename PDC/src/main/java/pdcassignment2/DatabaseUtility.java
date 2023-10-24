@@ -6,76 +6,96 @@
  * @Authors Group #60 | Thomas Brears #20122554 & Rafi Yusaf-Horsfall 20119318
  * @Created October 2023
  */
-
 //INSERT INTO Bookings (FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid)
 //VALUES ('John Doe', '123456789', 'john@example.com', '2023-10-03 14:00:00', 'Movie Title', 'Standard', 3, 30.00);
 package pdcassignment2;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseUtility {
 
-    private static final String DB_URL = "jdbc:derby:pdc_a2;create=true";
-    private static Connection conn = null;
+    private Connection conn = null;
+    private static DatabaseUtility instance = null;
 
-    public static Connection connect() throws DatabaseException {
+    private DatabaseUtility() throws DatabaseException {
+        connect();
+    }
+
+    public static DatabaseUtility getInstance() throws DatabaseException {
+        if (instance == null) {
+            instance = new DatabaseUtility();
+        }
+        return instance;
+    }
+
+    private void connect() throws DatabaseException {
         try {
             if (conn == null || conn.isClosed()) {
-                conn = DriverManager.getConnection(DB_URL);
+                // Load database configuration
+                ConfigLoader config = new ConfigLoader("database.properties");
+                String dbUrl = config.getProperty("db.url");
+                String dbUser = config.getProperty("db.user");
+                String dbPassword = config.getProperty("db.password");
+
+                // Establish a database connection
+                if (dbUser != null && dbPassword != null) {
+                    conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+                } else {
+                    conn = DriverManager.getConnection(dbUrl);
+                }
             }
-            return conn;
-        } catch (SQLException e) {
+        } catch (IOException | SQLException e) {
             throw new DatabaseException("Error connecting to the database", e);
         }
     }
 
-    public static void initialiseDatabase() throws DatabaseException {
-        try (Connection i  = connect();
-             Statement stmt = conn.createStatement()) {
-
+    public void initialiseDatabase() throws DatabaseException {
+        DatabaseUtility dbUtil = getInstance();
+        try ( Statement stmt = dbUtil.conn.createStatement()) {
             // Check if the Bookings table exists
             ResultSet rs = conn.getMetaData().getTables(null, null, "BOOKINGS", null);
 
             if (!rs.next()) {
                 // Table does not exist, create it
-                String createTableSQL = "CREATE TABLE Bookings (" +
-                        "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
-                        "FullName VARCHAR(255)," +
-                        "PhoneNumber VARCHAR(15)," +
-                        "Email VARCHAR(255)," +
-                        "BookingTime TIMESTAMP," +
-                        "Movie VARCHAR(255)," +
-                        "CinemaType VARCHAR(50)," +
-                        "TotalTickets INT," +
-                        "TotalPaid DECIMAL(10, 2)" +
-                        ")";
+                String createTableSQL = "CREATE TABLE Bookings ("
+                        + "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                        + "FullName VARCHAR(255),"
+                        + "PhoneNumber VARCHAR(15),"
+                        + "Email VARCHAR(255),"
+                        + "BookingTime TIMESTAMP,"
+                        + "Movie VARCHAR(255),"
+                        + "CinemaType VARCHAR(50),"
+                        + "TotalTickets INT,"
+                        + "TotalPaid DECIMAL(10, 2)"
+                        + ")";
                 stmt.executeUpdate(createTableSQL);
             }
 
             // Create the Movies table
             rs = conn.getMetaData().getTables(null, null, "MOVIES", null);
             if (!rs.next()) {
-                String createMoviesTableSQL = "CREATE TABLE Movies (" +
-                        "MovieID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
-                        "Title VARCHAR(255)," +
-                        "Description CLOB" +
-                        ")";
+                String createMoviesTableSQL = "CREATE TABLE Movies ("
+                        + "MovieID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                        + "Title VARCHAR(255),"
+                        + "Description CLOB"
+                        + ")";
                 stmt.executeUpdate(createMoviesTableSQL);
             }
 
             // Create the Shows table
             rs = conn.getMetaData().getTables(null, null, "SHOWS", null);
             if (!rs.next()) {
-                String createShowsTableSQL = "CREATE TABLE Shows (" +
-                        "ShowID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
-                        "MovieID INT," +
-                        "Time VARCHAR(20)," +
-                        "CinemaType VARCHAR(50)," +
-                        "AvailableTickets INT," +
-                        "FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)" +
-                        ")";
+                String createShowsTableSQL = "CREATE TABLE Shows ("
+                        + "ShowID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                        + "MovieID INT,"
+                        + "Time VARCHAR(20),"
+                        + "CinemaType VARCHAR(50),"
+                        + "AvailableTickets INT,"
+                        + "FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)"
+                        + ")";
                 stmt.executeUpdate(createShowsTableSQL);
             }
 
@@ -84,7 +104,7 @@ public class DatabaseUtility {
         }
     }
 
-    public static void closeConnection() throws DatabaseException {
+    public void closeConnection() throws DatabaseException {
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
@@ -104,10 +124,10 @@ public class DatabaseUtility {
         }
     }
 
-    public static boolean insertBooking(Booking booking) throws DatabaseException {
-        try (Connection localConn = connect()) {
+    public boolean insertBooking(Booking booking) throws DatabaseException {
+        try {
             String sql = "INSERT INTO Bookings(FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, booking.getFullName());
             stmt.setString(2, booking.getPhoneNumber());
             stmt.setString(3, booking.getEmail());
@@ -116,8 +136,7 @@ public class DatabaseUtility {
             stmt.setString(6, booking.getTicketType());
             stmt.setInt(7, booking.getTicketQuantity());
             stmt.setDouble(8, booking.getTotalPrice());
-            stmt.executeUpdate(); // Execute the INSERT operation
-            
+
             int affectedRows = stmt.executeUpdate(); // Execute the INSERT operation
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -125,10 +144,10 @@ public class DatabaseUtility {
         }
     }
 
-    public static Booking getBookingByID(int id) throws DatabaseException {
-        try (Connection localConn = connect()) {
+    public Booking getBookingByID(int id) throws DatabaseException {
+        try {
             String sql = "SELECT * FROM Bookings WHERE ID = ?";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -151,10 +170,10 @@ public class DatabaseUtility {
         }
     }
 
-    public static Booking findBookingByPhoneNumber(String phoneNumber) throws DatabaseException {
-        try (Connection localConn = connect()) {
+    public Booking findBookingByPhoneNumber(String phoneNumber) throws DatabaseException {
+        try {
             String sql = "SELECT * FROM Bookings WHERE PhoneNumber = ?";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, phoneNumber);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -177,11 +196,11 @@ public class DatabaseUtility {
         }
     }
 
-    public static void insertMovie(Movie movie) throws DatabaseException {
+    public void insertMovie(Movie movie) throws DatabaseException {
         if (!movieExists(movie.getTitle())) {
-            try (Connection localConn = connect()) {
+            try {
                 String sql = "INSERT INTO Movies(Title, Description) VALUES (?, ?)";
-                PreparedStatement stmt = localConn.prepareStatement(sql);
+                PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.setString(1, movie.getTitle());
                 stmt.setString(2, movie.getDescription());
                 stmt.executeUpdate();
@@ -193,10 +212,10 @@ public class DatabaseUtility {
         }
     }
 
-    public static boolean updateBooking(Booking booking) throws DatabaseException {
-        try (Connection localConn = connect()) {
+    public boolean updateBooking(Booking booking) throws DatabaseException {
+        try {
             String sql = "UPDATE Bookings SET FullName=?, PhoneNumber=?, Email=?, BookingTime=?, Movie=?, CinemaType=?, TotalTickets=?, TotalPaid=? WHERE ID = ?";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, booking.getFullName());
             stmt.setString(2, booking.getPhoneNumber());
             stmt.setString(3, booking.getEmail());
@@ -207,16 +226,17 @@ public class DatabaseUtility {
             stmt.setDouble(8, booking.getTotalPrice());
             stmt.setInt(9, booking.getId());
             int affectedRows = stmt.executeUpdate();
+
             return affectedRows > 0;
         } catch (SQLException e) {
             throw new DatabaseException("Error updating a booking", e);
         }
     }
 
-    private static boolean movieExists(String title) throws DatabaseException {
-        try (Connection localConn = connect()) {
+    private boolean movieExists(String title) throws DatabaseException {
+        try {
             String sql = "SELECT * FROM Movies WHERE Title = ?";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, title);
             ResultSet rs = stmt.executeQuery();
             return rs.next();
@@ -224,10 +244,11 @@ public class DatabaseUtility {
             throw new DatabaseException("Error checking if movie exists", e);
         }
     }
-    public static boolean deleteBooking(int id) throws DatabaseException {
-        try (Connection localConn = connect()) {
+
+    public boolean deleteBooking(int id) throws DatabaseException {
+        try {
             String sql = "DELETE FROM Bookings WHERE ID = ?";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
             int affectedRows = stmt.executeUpdate();
             return affectedRows > 0;
@@ -236,10 +257,9 @@ public class DatabaseUtility {
         }
     }
 
-    public static List<Movie> getAllMovies() throws DatabaseException {
+    public List<Movie> getAllMovies() throws DatabaseException {
         List<Movie> movies = new ArrayList<>();
-        try (Connection localConn = connect();
-             Statement stmt = localConn.createStatement()) {
+        try ( Statement stmt = conn.createStatement()) {
             String selectSQL = "SELECT * FROM Movies";
             ResultSet rs = stmt.executeQuery(selectSQL);
             while (rs.next()) {
@@ -255,10 +275,10 @@ public class DatabaseUtility {
         return movies;
     }
 
-    public static void insertShow(Show show) throws DatabaseException {
-        try (Connection localConn = connect()) {
+    public void insertShow(Show show) throws DatabaseException {
+        try {
             String sql = "INSERT INTO Shows(MovieID, Time, CinemaType, AvailableTickets) VALUES (?, ?, ?, ?)";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, show.getMovie().getMovieID());
             stmt.setString(2, show.getTime());
             stmt.setString(3, show.getCinemaType());
@@ -269,11 +289,11 @@ public class DatabaseUtility {
         }
     }
 
-    public static List<Show> getShowsByMovie(Movie movie) throws DatabaseException {
+    public List<Show> getShowsByMovie(Movie movie) throws DatabaseException {
         List<Show> shows = new ArrayList<>();
-        try (Connection localConn = connect()) {
+        try {
             String sql = "SELECT * FROM Shows WHERE MovieID = ?";
-            PreparedStatement stmt = localConn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, movie.getMovieID());
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {

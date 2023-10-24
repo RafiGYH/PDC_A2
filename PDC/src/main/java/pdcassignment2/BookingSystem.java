@@ -40,7 +40,8 @@ public class BookingSystem {
         Menu menu = new Menu();
 
         // Initialize the database
-        DatabaseUtility.initialiseDatabase();
+        DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+        dbUtil.initialiseDatabase();
 
         while (true) {
             try {
@@ -48,54 +49,59 @@ public class BookingSystem {
                 int mainChoice = menu.displayMainMenu();
                 switch (mainChoice) {
                     case 1:
-                        // Second Screen: Existing booking Query
+                        // Existing booking Query
                         menu.askForPhoneNumber();
 
-                        Booking foundBooking = DatabaseUtility.findBookingByPhoneNumber(menu.getPhoneNumber());
+                        Booking foundBooking = dbUtil.findBookingByPhoneNumber(menu.getPhoneNumber());
                         if (foundBooking != null) {
-                            // Display booking details
                             System.out.println("Booking found: " + foundBooking.toString());
                         } else {
                             System.out.println("No booking found for the given phone number.");
                         }
                         break;
                     case 2:
-                        // Third Screen: Show selection
-                        List<Movie> movies = DatabaseUtility.getAllMovies(); // Retrieve movies from the database
-                        int movieChoice = menu.displayMovieChoices(movies);  // Pass the movies list to the method
+                        // Show selection
+                        List<Movie> movies = dbUtil.getAllMovies();
+                        int movieChoice = menu.displayMovieChoices(movies);
                         Movie selectedMovie = movies.get(movieChoice - 1);
 
                         // Retrieve the list of shows for the selected movie
-                        List<Show> availableShows = DatabaseUtility.getShowsByMovie(selectedMovie);
+                        List<Show> availableShows = dbUtil.getShowsByMovie(selectedMovie);
+                        Show selectedShow = menu.selectShow(availableShows);
 
-                        // Fourth Screen: Ticket type
-                        menu.displayTicketMenu();
+                        // Calculate total price and get total tickets
                         BookingCalculator bookingCalculator = new BookingCalculator();
-                        bookingCalculator.getUserInputAndCalculateTotal();
+                        int numAdults = menu.getNumberOfTickets("adult");
+                        int numChildren = menu.getNumberOfTickets("child");
+                        Cinema selectedCinema = selectedShow.getCinema();
+                        PromoCode promoCode = menu.getPromoCodeFromUser();
 
+                        double totalPrice = bookingCalculator.calculateTotalPrice(numAdults, numChildren, promoCode, selectedCinema);
+                        bookingCalculator.setTotalPrice(totalPrice);
+                        bookingCalculator.setTotalTickets(numAdults + numChildren);
+
+                        // Booking Details
                         menu.askForName();
                         menu.askForPhoneNumber();
                         menu.askForEmail();
 
-                        // Fifth Screen: Booking Details
+                        // Confirm booking details
                         menu.displayBookingConfirmation(bookingCalculator);
 
-                        // Sixth Screen: Save/confirm booking
-                        Show selectedShow = menu.selectShow(availableShows);
-                        String cinemaType = selectedShow.getCinema().getClass().getSimpleName();
-                        int ticketQuantity = bookingCalculator.getTotalTickets();
+                        // Save/confirm booking
+                        String cinemaType = selectedCinema.getClass().getSimpleName();
                         Booking newBooking = new Booking(
                                 selectedMovie.getTitle(),
                                 selectedShow.getTime(),
                                 cinemaType,
-                                ticketQuantity,
+                                bookingCalculator.getTotalTickets(),
                                 menu.getFullName(),
                                 menu.getPhoneNumber(),
                                 menu.getEmail(),
-                                bookingCalculator.getTotalPrice()
+                                totalPrice
                         );
-                        DatabaseUtility.insertBooking(newBooking);
-                        System.out.println("\n------------------\nBooking Confirmed\nSee you soon \n------------------\n");
+                        dbUtil.insertBooking(newBooking);
+                        System.out.println("\n------------------\nBooking Confirmed\n------------------\n");
                         System.exit(0);
                         break;
                     case 3:
@@ -107,7 +113,6 @@ public class BookingSystem {
                 }
             } catch (DatabaseException e) {
                 e.printStackTrace(); // Log the exception
-                // Handle the exception, e.g., show an error message to the user
                 System.out.println("A database error occurred: " + e.getMessage());
             }
         }

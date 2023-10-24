@@ -28,7 +28,7 @@ public class Booking {
     }
 
     public Booking(String movieTitle, String showTime, String ticketType, int ticketQuantity,
-                   String fullName, String phoneNumber, String email, double totalPrice) {
+            String fullName, String phoneNumber, String email, double totalPrice) {
         this.movieTitle = movieTitle;
         this.showTime = showTime;
         this.ticketType = ticketType;
@@ -40,20 +40,24 @@ public class Booking {
     }
 
     public boolean create() throws DatabaseException {
-            return DatabaseUtility.insertBooking(this);
+        DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+        return dbUtil.insertBooking(this);
     }
 
     public static Booking read(int id) throws DatabaseException {
-            return DatabaseUtility.getBookingByID(id); 
+        DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+        return dbUtil.getBookingByID(id);
     }
 
     public boolean update() throws DatabaseException {
-            return DatabaseUtility.updateBooking(this);
+        DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+        return dbUtil.updateBooking(this);
     }
 
     public boolean delete() throws DatabaseException {
-            return DatabaseUtility.deleteBooking(id); 
-   }
+        DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+        return dbUtil.deleteBooking(id);
+    }
 
     // Getters and setters
     public int getId() {
@@ -130,12 +134,12 @@ public class Booking {
 
     @Override
     public String toString() {
-        return "Booking ID: " + id + "\n" +
-               "Name: " + fullName + "\n" +
-               "Phone Number: " + phoneNumber + "\n" +
-               "Email: " + email + "\n" +
-               ticketQuantity + "x " + ticketType + " Tickets for " + movieTitle + " at " + showTime + "\n" +
-               "Total Price: $" + totalPrice;
+        return "Booking ID: " + id + "\n"
+                + "Name: " + fullName + "\n"
+                + "Phone Number: " + phoneNumber + "\n"
+                + "Email: " + email + "\n"
+                + ticketQuantity + "x " + ticketType + " Tickets for " + movieTitle + " at " + showTime + "\n"
+                + "Total Price: $" + totalPrice;
     }
 
     public static Booking fromString(String str) {

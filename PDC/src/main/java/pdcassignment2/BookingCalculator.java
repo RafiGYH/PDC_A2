@@ -9,209 +9,53 @@ Booking Calculator.Java - Responsible for the tickets and pricing
  */
 package pdcassignment2;
 
-import java.text.DecimalFormat;
-import java.util.*;
-
 public class BookingCalculator {
 
-    //Standard tickets
+    // Standard tickets
     private static final double ADULT_TICKET_PRICE = 15.0;
     private static final double CHILD_TICKET_PRICE = 10.0;
-    //Premium tickets (+10)
+    // Premium tickets (+10)
     private static final double PREMIUM_ADULT_TICKET_PRICE = 25.0;
     private static final double PREMIUM_CHILD_TICKET_PRICE = 20.0;
 
-    double totalPrice;
-    double discountAmount;
+    private double totalPrice;
     private int totalTickets = 0;
+    private String ticketType;
 
-    // Calculate total price with the number of adults, children, cinema type, and promo code
     public double calculateTotalPrice(int numAdults, int numChildren, PromoCode promoCode, Cinema cinema) {
-        
         if (numAdults < 0 || numChildren < 0) {
             return 0.0; // Return $0 for negative ticket numbers
         }
 
-        try {
-            if (cinema instanceof StandardCinema) {
-                double totalAdultPrice = numAdults * ADULT_TICKET_PRICE;
-                double totalChildPrice = numChildren * CHILD_TICKET_PRICE;
-                totalPrice = totalAdultPrice + totalChildPrice;
-                setTicketType("Standard");
-            } else if (cinema instanceof PremiumCinema) {
-                PremiumCinema premiumCinema = (PremiumCinema) cinema;
-                double premiumAdultSeatPrice = numAdults * PREMIUM_ADULT_TICKET_PRICE;
-                double premiumChildSeatPrice = numChildren * PREMIUM_CHILD_TICKET_PRICE;
-                totalPrice = premiumAdultSeatPrice + premiumChildSeatPrice;
-                setTicketType("Premium");
-            }
+        double totalAdultPrice = numAdults * getAdultTicketPrice(cinema);
+        double totalChildPrice = numChildren * getChildTicketPrice(cinema);
 
-            if (promoCode != null) {
-                totalPrice = promoCode.discount(totalPrice);
-                if (totalPrice < 0) {
-                    totalPrice = 0; // Ensure total price is not negative after applying discount
-                }
-            }
-
-            return totalPrice;
-        } catch (ArithmeticException e) {
-            System.out.println("An error occurred during price calculation: " + e.getMessage());
-            return 0.0;
-        }
-    }
-
-
-    public String ticketType;
-
-    public void setTicketType(String ticketType) {
-        this.ticketType = ticketType;
-    }
-
-    public String getTicketType() {
-        return ticketType;
-    }
-
-    // Get user input, then calculate and display total price
-    public void getUserInputAndCalculateTotal() {
-        Scanner scanner = new Scanner(System.in);
-        DecimalFormat currencyFormat = new DecimalFormat("#0.00");
-
-        while (totalTickets == 0) { // Keep looping until at least 1 ticket
-            try {
-                System.out.print("Number of adult tickets required? ");
-                int numAdults = scanner.nextInt();
-                if (numAdults <= 0) {
-                    System.out.println("Invalid input. Number of adult tickets must be at least 1.");
-                    continue;
-                }
-
-                System.out.print("Number of child tickets required? ");
-                int numChildren = scanner.nextInt();
-                if (numChildren < 0) {
-                    System.out.println("Invalid input. Number of child tickets can't be negative.");
-                    continue;
-                }
-
-                // Calculate the total number of tickets
-                setTotalTickets(numAdults + numChildren);
-
-                // Cinema type
-                System.out.print("Enter the cinema type (1 for Standard, 2 for Premium): ");
-                int cinemaChoice = scanner.nextInt();
-                if (cinemaChoice != 1 && cinemaChoice != 2) {
-                    System.out.println("Invalid input. Please enter 1 for Standard or 2 for Premium.");
-                    continue;
-                }
-
-                Cinema cinema;
-                switch (cinemaChoice) {
-                    case 1:
-                        cinema = new StandardCinema("Standard Cinema", 90);
-                        break;
-                    case 2:
-                        cinema = new PremiumCinema("Premium Cinema", 90, 55);
-                        break;
-                    default:
-                        cinema = new StandardCinema("Standard Cinema", 90);
-                        break;
-                }
-
-                int availableSeats = cinema.getAvailableSeats();
-
-                if (totalTickets <= availableSeats) {
-                    // Get promo code input from user
-                    PromoCode promoCode = getPromoCodeFromUser(scanner);
-
-                    // Calculate total price with promo code
-                    double totalPrice = calculateTotalPrice(numAdults, numChildren, promoCode, cinema);
-
-                    // Display results
-                    System.out.println("Quantity of ADULT tickets: " + numAdults);
-                    System.out.println("Quantity of CHILD tickets: " + numChildren);
-
-                    // Check if a promo code is applied and calculate the discounted price
-                    if (promoCode != null) {
-                        double discountedPrice = promoCode.discount(totalPrice);
-                        System.out.println("Discounted Total Price for " + totalTickets + " tickets is $" + currencyFormat.format(discountedPrice));
-                    } else {
-                        System.out.println("Total Price for " + totalTickets + " tickets is $" + currencyFormat.format(totalPrice));
-                    }
-                    setTotalPrice(totalPrice);
-
-                } else {
-                    System.out.println("Sorry, there are not enough seats available!");
-                    totalTickets = 0; // Reloop
-                }
-
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-                scanner.nextLine(); // clear the buffer
-            } catch (NoSuchElementException e) {
-                System.out.println("No input provided. Please try again.");
-            }
-        }
-    }
-
-    // Valid promo codes
-    private boolean isValidPromoCode(String promoCodeValue) {
-        List<String> validPromoCodes = Arrays.asList("F5", "F2", "F10", "P10", "P20", "P5", "P2");
-        return validPromoCodes.contains(promoCodeValue);
-    }
-
-    // Request promo code
-    private PromoCode getPromoCodeFromUser(Scanner scanner) {
-        while (true) {
-            try {
-                System.out.print("Do you have a promo code? (yes/no): ");
-                String promoCodeAnswer = scanner.next();
-
-                if (promoCodeAnswer.equalsIgnoreCase("yes")) { // If they have a promo code
-                    System.out.print("Please enter the promo code: ");
-                    String code = scanner.next().toUpperCase().trim();
-
-                    if (code.length() < 2 || !(code.startsWith("F") || code.startsWith("P"))) {
-                        System.out.println("Invalid promo code format. Promo code should start with 'F' or 'P' followed by a number.");
-                        continue;
-                    }
-
-                    if (!isValidPromoCode(code)) {
-                        System.out.println("\n--------------------\n Invalid Promo Code \n--------------------\n");
-                        continue;
-                    }
-
-                    char codeType = code.charAt(0);
-                    double discountAmount;
-                    try {
-                        discountAmount = Double.parseDouble(code.substring(1));
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid promo code format. Please enter a valid promo code.");
-                        continue;
-                    }
-
-                    System.out.println("Promo Code " + code + " Added");
-
-                    // Fixed dollar discount
-                    if (codeType == 'F') {
-                        return new FixedDiscountPromo(discountAmount);
-                    } // Percentage discount
-                    else if (codeType == 'P') {
-                        return new PercentageDiscountPromo(discountAmount);
-                    }
-                } else if (promoCodeAnswer.equalsIgnoreCase("no")) {
-                    // No promo code - Exit loop
-                    break;
-                } else {
-                    System.out.println("Invalid input. Please enter 'yes' or 'no'.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a valid response.");
-                scanner.nextLine(); // clear the buffer
+        totalPrice = totalAdultPrice + totalChildPrice;
+        if (promoCode != null) {
+            totalPrice = promoCode.discount(totalPrice);
+            // Ensure total price does not go below 0
+            if (totalPrice < 0) {
+                totalPrice = 0.0;
             }
         }
 
-        return null;
+        return totalPrice;
     }
-    //Getters and Setters
+
+    private double getAdultTicketPrice(Cinema cinema) {
+        if (cinema instanceof PremiumCinema) {
+            setTicketType("Premium");
+            return PREMIUM_ADULT_TICKET_PRICE;
+        }
+        setTicketType("Standard");
+        return ADULT_TICKET_PRICE;
+    }
+
+    private double getChildTicketPrice(Cinema cinema) {
+        return (cinema instanceof PremiumCinema) ? PREMIUM_CHILD_TICKET_PRICE : CHILD_TICKET_PRICE;
+    }
+
+    // Getters and Setters
     public double getTotalPrice() {
         return totalPrice;
     }
@@ -220,16 +64,22 @@ public class BookingCalculator {
         this.totalPrice = totalPrice;
     }
 
-    public double getDiscountAmount() {
-        return discountAmount;
-    }
-
     public int getTotalTickets() {
         return totalTickets;
     }
 
-    public void setTotalTickets(int quantity) {
-        this.totalTickets = quantity;
+    public void setTotalTickets(int totalTickets) {
+        if (totalTickets < 0) {
+            throw new IllegalArgumentException("Total tickets cannot be negative.");
+        }
+        this.totalTickets = totalTickets;
     }
 
+    public String getTicketType() {
+        return ticketType;
+    }
+
+    public void setTicketType(String ticketType) {
+        this.ticketType = ticketType;
+    }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="12" failures="0" name="pdcassignment2.BookingCalculatorTest" time="0.013" errors="0" skipped="0">
+<testsuite tests="12" failures="0" name="pdcassignment2.BookingCalculatorTest" time="0.01" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="java.vm.version" value="11+28"/>
@@ -65,16 +65,16 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceStandardCinemaWithPromoCode" time="0.008"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceApplyingPromoCodeTwice" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithZeroTickets" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithInvalidPromoCode" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPricePremiumCinemaWithPromoCode" time="0.005"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithNegativeTickets" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceStandardCinema" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPricePremiumCinema" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWith100PercentDiscount" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithMoreThan100PercentDiscount" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPricePremiumCinemaWithZeroTickets" time="0.004"/>
   <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithFixedDiscountGreaterThanTotalPrice" time="0"/>
-  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPricePremiumCinemaWithZeroTickets" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithMoreThan100PercentDiscount" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithZeroTickets" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPricePremiumCinemaWithPromoCode" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPricePremiumCinema" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceStandardCinemaWithPromoCode" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWith100PercentDiscount" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithInvalidPromoCode" time="0.006"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceStandardCinema" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceApplyingPromoCodeTwice" time="0"/>
+  <testcase classname="pdcassignment2.BookingCalculatorTest" name="pdcassignment2.BookingCalculatorTest.testCalculateTotalPriceWithNegativeTickets" time="0"/>
 </testsuite>

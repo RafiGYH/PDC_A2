@@ -8,21 +8,30 @@
  */
 package pdcassignment2;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 public class DatabaseUtilityTest {
 
-    // Checks if a database connection can be established.
+    @Test
+    public void testGetInstance() {
+        try {
+            DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+            assertNotNull(dbUtil, "DatabaseUtility instance should not be null");
+        } catch (DatabaseException e) {
+            fail("Getting DatabaseUtility instance should not throw an exception");
+        }
+    }
+
     @Test
     public void testConnection() {
-        DatabaseUtility dbUtil = new DatabaseUtility();
         try {
-            assertNotNull(DatabaseUtility.connect(), "Database connection should not be null");
-        } catch (DatabaseException ex) {
-            Logger.getLogger(DatabaseUtilityTest.class.getName()).log(Level.SEVERE, null, ex);
+            DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+            assertNotNull(dbUtil, "DatabaseUtility instance should not be null");
+            
+            assertNotNull(dbUtil.getAllMovies(), "Movies list should not be null");
+        } catch (DatabaseException e) {
+            fail("Getting movies list should not throw an exception");
         }
     }
 }
