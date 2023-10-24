@@ -28,13 +28,13 @@ public class Movie {
         this.description = description;
         this.shows = new ArrayList<>();
     }
-    
+
     public int getMovieID() {
-    return id;
+        return id;
     }
-    
+
     public void setMovieID(int id) {
-    this.id = id;
+        this.id = id;
     }
 
     public int getId() {

@@ -70,7 +70,7 @@ public class Show {
     public int getAvailableSeats() {
         return totalSeats - bookedSeats;
     }
-    
+
     public void setShowID(int showID) {
         this.showID = showID;
     }
@@ -100,7 +100,7 @@ public class Show {
         if (numSeats > cinema.getBookingLimit()) {
             throw new BookingException("Booking exceeds limit for this cinema.");
         }
-        
+
         if (numSeats <= 0) {
             throw new BookingException("Invalid number of seats.");
         }
