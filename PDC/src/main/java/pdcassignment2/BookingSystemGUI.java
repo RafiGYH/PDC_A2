@@ -1,6 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+/* Auckland University of Technology (AUT), COMP603 Program Design and Construction
+ * 
+ * Project 2 - Cinema Booking System
+ * BookingSystemGUI.Java - Responsible for the graphical user interface for our system
+ * 
+ * @Authors Group #60 | Thomas Brears #20122554 & Rafi Yusaf-Horsfall 20119318
+ * @Created August 2023
+ * @Modified October 2023
  */
 package pdcassignment2;
 
@@ -8,14 +13,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-/**
- *
- * @author rafis
- */
+import java.sql.*;
+
 public class BookingSystemGUI {
     
     private JFrame frame;

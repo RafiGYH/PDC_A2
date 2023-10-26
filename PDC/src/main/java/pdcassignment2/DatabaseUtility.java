@@ -31,7 +31,7 @@ public class DatabaseUtility {
         return instance;
     }
 
-    private void connect() throws DatabaseException {
+    void connect() throws DatabaseException {
         try {
             if (conn == null || conn.isClosed()) {
                 // Load database configuration
