@@ -20,41 +20,62 @@ public class Menu {
     String phoneNumber;
     String email;
 
-    public Menu() {
+   public Menu(){
         scan = new Scanner(System.in);//Side note: Will allow any instantiation to use this when taking a method
     }
-
-    public int displayMainMenu() {
-        System.out.println("Cinema Booking System\n---------------------");
-        System.out.println("Press 1 to look up an existing booking");
-        System.out.println("Press 2 to Make a new Booking");
-        System.out.println("Press 3 to quit the program");
-        return userInputOptions(3);
-    }
-
-    public int displayBookingChoice() {
-        System.out.println("Query an existing booking\n------------------------- ");
-        System.out.println("What is the phone number on the booking?");
-        return userInputOptions(3);
-    }
-
-    public int displayMovieChoices(List<Movie> movies) {
-        System.out.println("\nPlease select a movie to book:");
-
-        // Display available movies and their descriptions
-        for (int i = 0; i < movies.size(); i++) {
-            Movie movie = movies.get(i);
-            System.out.println("Press " + (i + 1) + " for " + movie.getTitle());
-            System.out.println("Description: " + movie.getDescription());
-            System.out.println();
+    
+    public int displayMainMenu(BookingSystemGUI gui)
+    {
+        String selectedOption = (String) gui.mainMenuOptions.getSelectedItem();
+        if("Look up an existing booking".equals(selectedOption)){
+            return 1;
+        }else if ("Make a new booking".equals(selectedOption)) {
+            return 2;
+        } else if ("Quit the program".equals(selectedOption)) {
+            return 3;
+        } else {
+            return 0;
         }
-
-        System.out.println("Press " + (movies.size() + 1) + " to quit");
-
-        // Get user input
-        return userInputOptions(movies.size() + 1);
+    }
+    
+    //Movie Choices
+    public String displayMovieChoices(BookingSystemGUI gui) {
+        return (String) gui.movieChoices.getSelectedItem();
     }
 
+    //Date and Time Choices
+    public String displayDateTimeChoices(BookingSystemGUI gui) {
+        return (String) gui.dateTimeChoices.getSelectedItem();
+    }
+
+    //Ticket Count Choices
+    public String displayTicketCountChoices(BookingSystemGUI gui) {
+        return (String) gui.ticketCountChoices.getSelectedItem();
+    }
+
+    //Name Input
+    public String getNameInput(BookingSystemGUI gui) {
+        return gui.nameInput.getText();
+    }
+
+    //Phone Input
+    public String getPhoneInput(BookingSystemGUI gui) {
+        return gui.phoneInput.getText();
+    }
+
+    //Email Input
+    public String getEmailInput(BookingSystemGUI gui) {
+        return gui.emailInput.getText();
+    }
+    
+    public String displayTicketTypeChoices(BookingSystemGUI gui) {
+        return (String) gui.ticketTypeChoices.getSelectedItem();
+    }
+    
+    // Child Ticket Choices
+    public String displayChildTicketChoices(BookingSystemGUI gui) {
+    return (String) gui.childTicketChoices.getSelectedItem();
+}
     public Show selectShow(List<Show> availableShows) {
         System.out.println("\nPlease select a show time:");
 
