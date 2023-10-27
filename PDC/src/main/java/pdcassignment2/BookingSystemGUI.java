@@ -238,8 +238,8 @@ public class BookingSystemGUI {
                 booking.setFullName(fullName);
                 booking.setPhoneNumber(phoneNumber);
                 booking.setEmail(email);
-                booking.setMovieTitle(movieTitle);
                 booking.setShowTime(showTime);
+                booking.setMovieTitle(movieTitle);
                 booking.setTicketType(ticketType);
                 booking.setTicketQuantity(totalTickets);
                 booking.setTotalPrice(totalPrice);
