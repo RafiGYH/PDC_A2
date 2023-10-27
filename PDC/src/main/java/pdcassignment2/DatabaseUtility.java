@@ -63,7 +63,7 @@ public class DatabaseUtility {
                         + "FullName VARCHAR(255),"
                         + "PhoneNumber VARCHAR(15),"
                         + "Email VARCHAR(255),"
-                        + "BookingTime TIMESTAMP,"
+                        + "BookingTime VARCHAR(255),"
                         + "Movie VARCHAR(255),"
                         + "CinemaType VARCHAR(50),"
                         + "TotalTickets INT,"
