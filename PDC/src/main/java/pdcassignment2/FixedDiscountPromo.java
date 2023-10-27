@@ -11,7 +11,6 @@ package pdcassignment2;
 
 public class FixedDiscountPromo implements PromoCode {
 
-    private String code;
     private double discountAmount;
 
     public FixedDiscountPromo(double discountAmount) {
@@ -25,10 +24,5 @@ public class FixedDiscountPromo implements PromoCode {
     @Override
     public double discount(double originalAmount) {
         return originalAmount - discountAmount; // Return the fixed discount amount
-    }
-    
-    @Override
-    public String getCode() {
-        return code;
     }
 }

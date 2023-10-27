@@ -11,6 +11,5 @@ package pdcassignment2;
 
 public interface PromoCode {
 
-    double discount(double price);
-    String getCode();
+    double discount(double discountAmount);
 }

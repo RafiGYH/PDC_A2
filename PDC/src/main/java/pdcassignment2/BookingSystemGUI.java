@@ -219,7 +219,7 @@ public class BookingSystemGUI {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleConfirmButton();
+                // Implement booking confirmation functionality here
             }
         });
 
@@ -233,35 +233,6 @@ public class BookingSystemGUI {
         frame.add(panel);
     }
 
-    private void handleConfirmButton() {
-        // 1. Create a Booking Object
-        Booking booking = new Booking();
-        booking.setFullName(nameInput.getText().trim());
-        booking.setPhoneNumber(phoneInput.getText().trim());
-        booking.setEmail(emailInput.getText().trim());
-        booking.setMovieTitle((String) movieChoices.getSelectedItem());
-        booking.setShowTime((String) dateTimeChoices.getSelectedItem());
-        booking.setTicketType((String) ticketTypeChoices.getSelectedItem());
-        booking.setTicketQuantity(Integer.parseInt((String) ticketCountChoices.getSelectedItem()));
-        booking.setChildTicketQuantity(Integer.parseInt((String) childTicketChoices.getSelectedItem()));
-        booking.setTotalPrice(totalPrice); 
-        booking.setPromoCode(appliedPromoCode); 
-
-        // 2. Submit to the Database
-        try {
-            DatabaseUtility dbUtil = DatabaseUtility.getInstance();
-            if (dbUtil.insertBooking(booking)) {
-                // 3. Display Booking Details
-                JOptionPane.showMessageDialog(frame, "Booking Confirmed!\n" + booking.toString());
-            } else {
-                JOptionPane.showMessageDialog(frame, "Failed to confirm booking. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (DatabaseException e) {
-            JOptionPane.showMessageDialog(frame, "Failed to submit booking. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }
-    
     private void loadMoviesIntoComboBox() {
         try {
             DatabaseUtility dbUtil = DatabaseUtility.getInstance();

@@ -66,8 +66,6 @@ public class DatabaseUtility {
                         + "BookingTime TIMESTAMP,"
                         + "Movie VARCHAR(255),"
                         + "CinemaType VARCHAR(50),"
-                        + "AdultTickets INT,"
-                        + "ChildTickets INT,"
                         + "TotalTickets INT,"
                         + "TotalPaid DECIMAL(10, 2)"
                         + ")";
@@ -126,7 +124,7 @@ public class DatabaseUtility {
 
     public boolean insertBooking(Booking booking) throws DatabaseException {
         try {
-            String sql = "INSERT INTO Bookings(FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, AdultTickets, ChildTickets, TotalTickets, TotalPaid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Bookings(FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, booking.getFullName());
             stmt.setString(2, booking.getPhoneNumber());
@@ -134,10 +132,8 @@ public class DatabaseUtility {
             stmt.setString(4, booking.getShowTime());
             stmt.setString(5, booking.getMovieTitle());
             stmt.setString(6, booking.getTicketType());
-            stmt.setInt(7, booking.getAdultTicketQuantity());
-            stmt.setInt(8, booking.getChildTicketQuantity());
-            stmt.setInt(9, booking.getTotalTickets());
-            stmt.setDouble(10, booking.getTotalPrice());
+            stmt.setInt(7, booking.getTicketQuantity());
+            stmt.setDouble(8, booking.getTotalPrice());
 
             int affectedRows = stmt.executeUpdate(); // Execute the INSERT operation
             return affectedRows > 0;

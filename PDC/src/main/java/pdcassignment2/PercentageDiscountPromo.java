@@ -11,7 +11,6 @@ package pdcassignment2;
 
 public class PercentageDiscountPromo implements PromoCode {
 
-    private String code;
     private double discountPercentage;
 
     public PercentageDiscountPromo(double discountPercentage) {
@@ -26,10 +25,5 @@ public class PercentageDiscountPromo implements PromoCode {
     public double discount(double originalAmount) {
         double discount = originalAmount * (discountPercentage / 100);
         return originalAmount - discount; // Subtract the discount from the original amount
-    }
-    
-    @Override
-    public String getCode() {
-        return code;
     }
 }
