@@ -349,6 +349,7 @@ private void handleNextButton() {
         movieChoices.setVisible(false);
         dateTimeChoices.setVisible(true);
         backButton.setVisible(true);
+        restartButton.setVisible(true);
         return;
     }
 
@@ -360,6 +361,7 @@ private void handleNextButton() {
         dateTimeChoices.setVisible(false);
         ticketCountChoices.setVisible(true);
         backButton.setVisible(true);
+        restartButton.setVisible(true);
         return;
     }
 
@@ -371,6 +373,7 @@ private void handleNextButton() {
         ticketCountChoices.setVisible(false);
         childTicketChoices.setVisible(true);
         backButton.setVisible(true);
+        restartButton.setVisible(true);
         return;
     }
 
@@ -382,6 +385,7 @@ private void handleNextButton() {
         childTicketChoices.setVisible(false);
         ticketTypeChoices.setVisible(true);
         backButton.setVisible(true);
+        restartButton.setVisible(true);
         return;
     }
 
@@ -394,6 +398,8 @@ private void handleNextButton() {
         promoCodeLabel.setVisible(true);
         promoCodeInput.setVisible(true);
         backButton.setVisible(true);
+        restartButton.setVisible(true);
+        
         return;
     }
 
@@ -404,6 +410,7 @@ private void handleNextButton() {
         promoCodeInput.setVisible(false);
         nameInput.setVisible(true);
         backButton.setVisible(true);
+        restartButton.setVisible(true);
         return;
     }
 
@@ -417,6 +424,7 @@ private void handleNextButton() {
         frame.revalidate();
         frame.repaint();
         backButton.setVisible(true);
+        restartButton.setVisible(true);
         return;
     }
 
@@ -430,6 +438,7 @@ private void handleNextButton() {
         frame.revalidate();
         frame.repaint();
         backButton.setVisible(true);
+        restartButton.setVisible(true);
         return;
     }
 
@@ -440,6 +449,7 @@ private void handleNextButton() {
         frame.repaint();
         nextButton.setVisible(false);
         backButton.setVisible(true);
+        restartButton.setVisible(true);
     }
 }
 
@@ -534,6 +544,7 @@ private void handleNextButton() {
         promoCodeInput.setVisible(false);
         phoneNumberLookupField.setVisible(false);
         searchButton.setVisible(false);
+        restartButton.setVisible(false);
     }
 
     public static void main(String[] args) {
