@@ -387,7 +387,7 @@ private void handleNextButton() {
             return;
         }
         ticketTypeChoices.setVisible(false);
-        //applyPromoCode();
+        //
         promoCodeLabel.setVisible(true);
         promoCodeInput.setVisible(true);
         return;
@@ -395,7 +395,7 @@ private void handleNextButton() {
 
     if (promoCodeLabel.isVisible() && promoCodeInput.isVisible()) {
         String promoCode = promoCodeInput.getText().trim();
-        // Apply promo code logic here, if necessary
+        applyPromoCode(promoCode);
         promoCodeLabel.setVisible(false);
         promoCodeInput.setVisible(false);
         nameInput.setVisible(true);
