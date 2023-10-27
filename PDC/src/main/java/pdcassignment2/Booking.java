@@ -23,6 +23,8 @@ public class Booking {
     private String email;
     private double totalPrice;
     private int childTicketQuantity;
+    private int adultTicketQuantity;
+    private PromoCode promoCode;
     
     public Booking() {
         // Default constructor
@@ -128,13 +130,33 @@ public class Booking {
     public double getTotalPrice() {
         return totalPrice;
     }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
     
+    public int getChildTicketQuantity() {
+        return childTicketQuantity;
+    }
+
     public void setChildTicketQuantity(int childTicketQuantity) {
         this.childTicketQuantity = childTicketQuantity;
     }
 
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
+    public PromoCode getPromoCode() {
+        return promoCode;
+    }
+
+    public void setPromoCode(PromoCode promoCode) {
+        this.promoCode = promoCode;
+    }
+    
+    public int getAdultTicketQuantity() {
+        return adultTicketQuantity;
+    }
+    
+    public int getTotalTickets() {
+        return ticketQuantity;
     }
 
     @Override
