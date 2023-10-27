@@ -348,6 +348,7 @@ private void handleNextButton() {
         }
         movieChoices.setVisible(false);
         dateTimeChoices.setVisible(true);
+        backButton.setVisible(true);
         return;
     }
 
@@ -358,6 +359,7 @@ private void handleNextButton() {
         }
         dateTimeChoices.setVisible(false);
         ticketCountChoices.setVisible(true);
+        backButton.setVisible(true);
         return;
     }
 
@@ -368,6 +370,7 @@ private void handleNextButton() {
         }
         ticketCountChoices.setVisible(false);
         childTicketChoices.setVisible(true);
+        backButton.setVisible(true);
         return;
     }
 
@@ -378,6 +381,7 @@ private void handleNextButton() {
         }
         childTicketChoices.setVisible(false);
         ticketTypeChoices.setVisible(true);
+        backButton.setVisible(true);
         return;
     }
 
@@ -387,9 +391,9 @@ private void handleNextButton() {
             return;
         }
         ticketTypeChoices.setVisible(false);
-        //
         promoCodeLabel.setVisible(true);
         promoCodeInput.setVisible(true);
+        backButton.setVisible(true);
         return;
     }
 
@@ -399,6 +403,7 @@ private void handleNextButton() {
         promoCodeLabel.setVisible(false);
         promoCodeInput.setVisible(false);
         nameInput.setVisible(true);
+        backButton.setVisible(true);
         return;
     }
 
@@ -411,6 +416,7 @@ private void handleNextButton() {
         phoneInput.setVisible(true); // Display phone input field after entering the name
         frame.revalidate();
         frame.repaint();
+        backButton.setVisible(true);
         return;
     }
 
@@ -423,6 +429,7 @@ private void handleNextButton() {
         emailInput.setVisible(true);
         frame.revalidate();
         frame.repaint();
+        backButton.setVisible(true);
         return;
     }
 
@@ -432,6 +439,7 @@ private void handleNextButton() {
         frame.revalidate();
         frame.repaint();
         nextButton.setVisible(false);
+        backButton.setVisible(true);
     }
 }
 
