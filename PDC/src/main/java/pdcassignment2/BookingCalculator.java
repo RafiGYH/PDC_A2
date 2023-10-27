@@ -52,7 +52,10 @@ public class BookingCalculator {
     }
 
     private double getChildTicketPrice(Cinema cinema) {
-        return (cinema instanceof PremiumCinema) ? PREMIUM_CHILD_TICKET_PRICE : CHILD_TICKET_PRICE;
+        if (cinema instanceof PremiumCinema) {
+            return PREMIUM_CHILD_TICKET_PRICE;
+        }
+        return CHILD_TICKET_PRICE;
     }
 
     // Getters and Setters

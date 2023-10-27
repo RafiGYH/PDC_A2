@@ -6,8 +6,6 @@
  * @Authors Group #60 | Thomas Brears #20122554 & Rafi Yusaf-Horsfall 20119318
  * @Created October 2023
  */
-//INSERT INTO Bookings (FullName, PhoneNumber, Email, BookingTime, Movie, CinemaType, TotalTickets, TotalPaid)
-//VALUES ('John Doe', '123456789', 'john@example.com', '2023-10-03 14:00:00', 'Movie Title', 'Standard', 3, 30.00);
 package pdcassignment2;
 
 import java.io.IOException;
@@ -288,6 +286,18 @@ public class DatabaseUtility {
             throw new DatabaseException("Error adding a show", e);
         }
     }
+    
+    public void printAllMovies() throws DatabaseException {
+    List<Movie> movies = getAllMovies();
+    if (movies.isEmpty()) {
+        System.out.println("No movies found in the database.");
+    } else {
+        for (Movie movie : movies) {
+            System.out.println("Movie: " + movie.getTitle() + ", Description: " + movie.getDescription());
+        }
+    }
+}
+
 
     public List<Show> getShowsByMovie(Movie movie) throws DatabaseException {
         List<Show> shows = new ArrayList<>();
@@ -302,7 +312,6 @@ public class DatabaseUtility {
                 fetchedMovie.setDescription(rs.getString("Description"));
                 fetchedMovie.setMovieID(rs.getInt("MovieID"));
 
-                // Assuming you have some default values or you fetch them from the database
                 String defaultTime = "12:00 PM"; // Example value
                 Cinema defaultCinema = new StandardCinema("Default Cinema", 100); // Example value
                 int defaultTotalSeats = 100; // Example value

@@ -16,6 +16,10 @@ public class PercentageDiscountPromo implements PromoCode {
     public PercentageDiscountPromo(double discountPercentage) {
         this.discountPercentage = discountPercentage;
     }
+    
+    public String getDiscountDescription() {
+        return discountPercentage + "% off";
+    }
 
     @Override
     public double discount(double originalAmount) {

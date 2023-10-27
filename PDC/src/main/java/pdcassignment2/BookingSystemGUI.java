@@ -1,22 +1,14 @@
-/* Auckland University of Technology (AUT), COMP603 Program Design and Construction
- * 
- * Project 2 - Cinema Booking System
- * BookingSystemGUI.Java - Responsible for the graphical user interface for our system
- * 
- * @Authors Group #60 | Thomas Brears #20122554 & Rafi Yusaf-Horsfall 20119318
- * @Created August 2023
- * @Modified October 2023
- */
 package pdcassignment2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class BookingSystemGUI {
-    
+
     private JFrame frame;
     public JComboBox<String> mainMenuOptions;
     public JComboBox<String> movieChoices;
@@ -35,11 +27,17 @@ public class BookingSystemGUI {
     public JButton backButton;
     public JButton restartButton;
     public JComboBox<String> childTicketChoices;
-    
-    
-    //Promo code addition
     public JLabel promoCodeLabel;
     public JTextField promoCodeInput;
+    private JLabel totalCostLabel;
+
+    private BookingCalculator bookingCalculator = new BookingCalculator();
+    private PromoCodeValidator promoCodeValidator = new PromoCodeValidator();
+    private PromoCode appliedPromoCode;
+    private double totalPrice;
+    private double discountAmount;
+    private int totalTickets;
+    private double discountedTotal;
 
     public BookingSystemGUI() {
         frame = new JFrame("Cinema Booking System");
@@ -56,86 +54,88 @@ public class BookingSystemGUI {
         c.gridy = 0;
         panel.add(mainMenuOptions, c);
 
-        
-        //Code for cinemas and shows and movies
-        StandardCinema cinema1 = new StandardCinema("Cinema 1", 60);
-        StandardCinema cinema2 = new StandardCinema("Cinema 2", 90);
-        PremiumCinema cinema3 = new PremiumCinema("Cinema 3", 90, 55);
-        
-        Movie chronoNexu = new Movie("Chrono Nexu", "A physicist becomes trapped in a maze of alternative realities as a result of "
-                + "his research on alternate universes. In this surreal sci-fi thriller"
-                + " the protagonist races against time to discover the secret of the portals.");
-        Movie whispersInTheMist = new Movie("Whispers in the Mist", "Dark secrets in a mountain town are revealed by eerie whispers from an endless mist."
-                + "To escape the gripping psychological nightmare, strangers must face their pasts and one another.");
-        Movie skywardOdyssey = new Movie("Skyward Odyssey", "A diverse crew navigates cosmic obstacles in pursuit of a new home while the Earth disintegrates."
-                + "\"Skyward Odyssey\" is a grand story about cooperation, hope, and interstellar travel.");
-        
-        Show show1 = new Show(chronoNexu, "11:30 AM", cinema1, 100);
-        Show show2 = new Show(whispersInTheMist, "3:00 PM", cinema2, 100);
-        Show show3 = new Show(skywardOdyssey, "2:00 PM", cinema3, 100);
-        
-        
         // Movie Choices Dropdown
-        String[] movies = {"Select a movie", chronoNexu.getTitle(), whispersInTheMist.getTitle(), skywardOdyssey.getTitle()};
-        movieChoices = new JComboBox<>(movies);
+        movieChoices = new JComboBox<>();
+        loadMoviesIntoComboBox(); // Load movies into JComboBox
         c.gridy = 1;
         panel.add(movieChoices, c);
 
         // Date and Time Dropdown
-        
-        String[] dateTimes = {"Select date and time", "30/10/24 at"+show1.getTime() , "30/10/24 at"+show2.getTime(), "30/10/24 at"+show3.getTime()};
+        String[] dateTimes = {"Select date and time", "30/10/24 at 11:30 AM", "30/10/24 at 3:00 PM", "30/10/24 at 2:00 PM"};
         dateTimeChoices = new JComboBox<>(dateTimes);
         c.gridy = 2;
         panel.add(dateTimeChoices, c);
 
-        // Ticket Count Dropdown 
-        String[] ticket = {"Select Adult Tickets", "1", "2", "3", "4","5"};
-        ticketCountChoices = new JComboBox<>(ticket);
+        // Ticket Count Dropdown
+        String[] ticketCounts = {"Select Adult Tickets", "1", "2", "3", "4", "5"};
+        ticketCountChoices = new JComboBox<>(ticketCounts);
         c.gridy = 3;
         panel.add(ticketCountChoices, c);
-        
-        // Ticket Type dropdown
+
+        // Ticket Type Dropdown
         String[] ticketTypes = {"Select type of tickets", "Standard", "Premuim"};
         ticketTypeChoices = new JComboBox<>(ticketTypes);
         c.gridy = 4;
         panel.add(ticketTypeChoices, c);
-        
+
+        // Child Ticket Dropdown
+        String[] childTickets = {"Choose child tickets", "0", "1", "2", "3", "4"};
+        childTicketChoices = new JComboBox<>(childTickets);
+        c.gridy = 5;
+        panel.add(childTicketChoices, c);
+        childTicketChoices.setVisible(false);
 
         // Name Input
-        nameInput = new JTextField("Enter your name");
-        c.gridy = 5;
+        nameInput = createTextFieldWithPlaceholder("Enter your name", 6);
         panel.add(nameInput, c);
 
         // Phone Input
-        phoneInput = new JTextField("Enter your phone number");
-        c.gridy = 6;
+        phoneInput = createTextFieldWithPlaceholder("Enter your phone number", 7);
         panel.add(phoneInput, c);
 
         // Email Input
-        emailInput = new JTextField("Enter your email");
-        c.gridy = 7;
+        emailInput = createTextFieldWithPlaceholder("Enter your email", 8);
         panel.add(emailInput, c);
 
         // Next Button
         nextButton = new JButton("Next");
-        c.gridy = 8;
+        c.gridy = 11;
         panel.add(nextButton, c);
 
         // Quit Button
         quitButton = new JButton("Quit");
-        c.gridy = 9;
+        c.gridy = 12;
         panel.add(quitButton, c);
 
-        // Child Ticket Dropdown
-        String[] childTickets = {"Choose child tickets", "1", "2", "3", "4"};
-        childTicketChoices = new JComboBox<>(childTickets);
-        c.gridy = 4;  // Assuming this is the next available grid position
-        panel.add(childTicketChoices, c);
-        childTicketChoices.setVisible(false);
-        
-        
+        // Confirm Button
+        confirmButton = new JButton("Confirm");
+        c.gridy = 13;
+        panel.add(confirmButton, c);
+        confirmButton.setVisible(false);
 
-        mainMenuOptions.setVisible(true);
+        // Back Button
+        backButton = new JButton("Back");
+        c.gridy = 14;
+        panel.add(backButton, c);
+        backButton.setVisible(false);
+
+        // Restart Button
+        restartButton = new JButton("Restart");
+        c.gridy = 15;
+        panel.add(restartButton, c);
+        restartButton.setVisible(false);
+
+        // Search Button
+        searchButton = new JButton("Search");
+
+        phoneNumberLookupField = createTextFieldWithPlaceholder("Enter phone number to lookup", 16);// Phone Number Lookup Field
+
+        panel.add(phoneNumberLookupField, c);
+        panel.add(searchButton, c);
+        searchButton.setVisible(false);
+        phoneNumberLookupField.setVisible(false);
+
+        // Set initial visibility
         movieChoices.setVisible(false);
         dateTimeChoices.setVisible(false);
         ticketCountChoices.setVisible(false);
@@ -143,59 +143,11 @@ public class BookingSystemGUI {
         phoneInput.setVisible(false);
         emailInput.setVisible(false);
         ticketTypeChoices.setVisible(false);
-        phoneNumberLookupField = new JTextField("Enter phone number to lookup", 20);  
-        searchButton = new JButton("Search");
-        confirmButton = new JButton("Confirm");
-        backButton = new JButton("Back");
-        
-        
-        promoCodeLabel = new JLabel("Do you have a promo code?");
-        promoCodeInput = new JTextField("Enter promo code here");
-        c.gridy = 5;  
-        panel.add(promoCodeLabel, c);
 
-        c.gridy = 6;  
-        panel.add(promoCodeInput, c);
-        
-        backButton.setVisible(false);
-        c.gridy = 11;
-        panel.add(backButton, c);
-        
-        c.gridy = 10; 
-        panel.add(confirmButton, c);
-        confirmButton.setVisible(false);
-        
-        restartButton = new JButton("Restart");
-        c.gridy = 12;  
-        panel.add(restartButton, c);
-        restartButton.setVisible(true);
-        
-        
-        promoCodeLabel.setVisible(false);
-        promoCodeInput.setVisible(false);
-        
         // Action Listeners
         nextButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            String selectedOption = (String) mainMenuOptions.getSelectedItem();
-            if ("Look up an existing booking".equals(selectedOption)) {
-            
-            
-                
-            panel.removeAll();
-            c.gridy = 0;
-            panel.add(phoneNumberLookupField, c);
-            
-            // Add Search buttoon
-            c.gridy = 1;
-            panel.add(searchButton, c);
-
-            // Repaint and rev.
-            panel.repaint();
-            panel.revalidate();
-        }
-                
                 handleNextButton();
             }
         });
@@ -207,426 +159,335 @@ public class BookingSystemGUI {
             }
         });
 
-        
-        //Should function as the AL for the searchbutton
         searchButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-        String phoneNumber = phoneNumberLookupField.getText();
-
-        if (!phoneNumber.matches("\\d+")) {
-            JOptionPane.showMessageDialog(frame, "Please enter a valid phone number with digits only.");
-            return;
-        }
-        
-        // Connect to the database
-        try {
-            Connection conn = DatabaseUtility.connect();
-
-            // SQL for dind
-            String query = "SELECT * FROM Bookings WHERE PhoneNumber = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, phoneNumber);
-            ResultSet rs = pstmt.executeQuery();
-
-            // Check if a booking is found
-            if (rs.next()) {
-                //This will display our booking ingo 
-                String fullName = rs.getString("FullName");
-                String email = rs.getString("Email");
-                // Add more fields as needed
-                JOptionPane.showMessageDialog(frame, "Booking found:\nName: " + fullName + "\nEmail: " + email);
-            } else {
-                //Error message
-                JOptionPane.showMessageDialog(frame, "No booking found for the provided phone number.");
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Implement search functionality here
             }
+        });
 
-        } catch (DatabaseException | SQLException ex) {
-            JOptionPane.showMessageDialog(frame, "An error occurred while accessing the database.");
-        }
-    }
-    
-    
-    
-    
-});
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleBackButton();
+            }
+        });
 
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Implement booking confirmation functionality here
+            }
+        });
 
-//        movieChoices.addActionListener(new ActionListener() {
-//    @Override
-//    public void actionPerformed(ActionEvent e) {
-//        if ("Select a movie".equals(movieChoices.getSelectedItem())) {
-//            JOptionPane.showMessageDialog(frame, "Please select a valid movie from the list.");
-//            // Optionally, set it to a default valid index like 1 (first actual movie)
-//            movieChoices.setSelectedIndex(1);
-//        }
-//    }
-//});
-//        
-        
+        restartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetToInitialState();
+            }
+        });
 
-
-backButton.addActionListener(new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-        handleBackButton(); 
-    }
-});
-
-
-
-
-mainMenuOptions.addActionListener(new ActionListener() {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String selectedOption = (String) mainMenuOptions.getSelectedItem();
-        if ("Quit the program".equals(selectedOption)) {
-            System.exit(0);
-        }
-    }
-});
-
-confirmButton.addActionListener(new ActionListener() {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        int test =1;
-        String selectedMovie = (String) movieChoices.getSelectedItem();
-        System.out.println(selectedMovie);
-        String selectedDateTime = (String) dateTimeChoices.getSelectedItem();
-        System.out.println(selectedDateTime);
-        String selectedTicketCount = (String) ticketCountChoices.getSelectedItem(); //Adult tickets
-        System.out.println(selectedTicketCount);
-        String selectedChildTickets = (String) childTicketChoices.getSelectedItem();//Child Tickets
-        System.out.println(selectedChildTickets);
-        String selectedTicketType = (String) ticketTypeChoices.getSelectedItem();
-        System.out.println(selectedTicketType);
-        String enteredName = nameInput.getText();
-        System.out.println(enteredName);
-        String enteredPhone = phoneInput.getText();
-        System.out.println(enteredPhone);
-        String enteredEmail = emailInput.getText();
-        System.out.println(enteredEmail);
-        String promoCode = promoCodeInput.getText();
-        System.out.println(promoCode);
-        
-        double childTickets;
-        childTickets = Double.parseDouble(selectedChildTickets);
-
-        double adultTickets;
-        adultTickets = Double.parseDouble(selectedTicketCount);
-        
-        Menu menu = new Menu();
-        if("Standard".equals(selectedTicketType))
-        {
-            
-        }
-                
-        
-        //Where the critical change is, making a bookingcalculator object is different in the GUI
-//        if("Standard".equals(selectedTicketType) & "Chrono Nexu".equals(selectedMovie)){
-//            BookingCalculator BC = new BookingCalculator();
-//            BC.calculateTotalPrice(adultTickets, childTickets, ,);
-//        }
-       
-        
-        int totalprice = 0;
-        
-        
-        
-        
-        // "Standard", "Premuim"};
-
-//        "ID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
-//                        "FullName VARCHAR(255)," +
-//                        "PhoneNumber VARCHAR(15)," +
-//                        "Email VARCHAR(255)," +
-//                        "BookingTime TIMESTAMP," +
-//                        "Movie VARCHAR(255)," +
-//                        "CinemaType VARCHAR(50)," +
-//                        "TotalTickets INT," +
-//                        "TotalPaid DECIMAL(10, 2)" +
-//                        ")";
-        
-        
-        Booking newBooking = new Booking();
-        newBooking.setFullName(enteredName);//Done
-        newBooking.setPhoneNumber(enteredPhone);//current string
-        newBooking.setEmail(enteredEmail);//Done
-        newBooking.setShowTime(selectedDateTime);//Booking time change SQL
-        newBooking.setMovieTitle(selectedMovie);//Done
-        newBooking.setTicketType(selectedTicketType);//Done
-        newBooking.setTicketQuantity(Integer.parseInt(selectedTicketCount));//Done
-        newBooking.setTotalPrice(totalprice);//Needs to be a int
-        
-        BookingSystem.insertNewBooking(newBooking);
-        System.out.println("added");
-
-        JOptionPane.showMessageDialog(frame, "Booking successfully created!");
-    }
-});
-
-        
-    restartButton.addActionListener(new ActionListener() {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        resetToInitialState();
-    }
-});    
-        
         frame.add(panel);
- 
     }
-     
-    public String getSelectedMainMenuOption() {
-        return (String) mainMenuOptions.getSelectedItem();
-    }
-    
-   private void handleNextButton() {
-    if (mainMenuOptions.isVisible()) {
-        String selectedOption = (String) mainMenuOptions.getSelectedItem();
-        mainMenuOptions.setVisible(false);
-        if ("Look up an existing booking".equals(selectedOption)) {
-            phoneInput.setVisible(true);
-        } else if ("Make a new booking".equals(selectedOption)) {
-            movieChoices.setVisible(true);
+
+    private void loadMoviesIntoComboBox() {
+        try {
+            DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+            List<Movie> movies = dbUtil.getAllMovies();
+            if (movies.isEmpty()) {
+                System.out.println("No movies found in the database.");
+            } else {
+                System.out.println("Movies found: " + movies.size());
+            }
+            List<String> movieTitles = new ArrayList<>();
+            movieTitles.add("Select a movie"); // Default option
+            for (Movie movie : movies) {
+                System.out.println("Adding movie to dropdown: " + movie.getTitle());
+                movieTitles.add(movie.getTitle());
+            }
+            movieChoices.setModel(new DefaultComboBoxModel<>(movieTitles.toArray(new String[0])));
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to load movies from database.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        return;
     }
-
-    if (movieChoices.isVisible()) {
-        if ("Select a movie".equals(movieChoices.getSelectedItem())) {
-            JOptionPane.showMessageDialog(frame, "Please select a valid movie from the list.");
-            return; // Do not proceed to next step
-        }
-        movieChoices.setVisible(false);
-        dateTimeChoices.setVisible(true);
-        backButton.setVisible(true);
-        return;
-    }
-
-    if (dateTimeChoices.isVisible()) {
-        if ("Select date and time".equals(dateTimeChoices.getSelectedItem())) {
-            JOptionPane.showMessageDialog(frame, "Please select a valid date and time.");
-            return; // Do not proceed to next step
-        }
-        dateTimeChoices.setVisible(false);
-        ticketCountChoices.setVisible(true);
-        backButton.setVisible(true);
-        return;
-    }
-
-     if (ticketCountChoices.isVisible()) {
-         if ("Select Adult Tickets".equals(ticketCountChoices.getSelectedItem())) {
-            JOptionPane.showMessageDialog(frame, "Please select a valid number of adult tickets.");
-            return; // Do not proceed to next step
-        }
-        ticketCountChoices.setVisible(false);
-        childTicketChoices.setVisible(true);  // Display childTicketChoices after ticketCountChoices
-        backButton.setVisible(true);
-        return;
-    }
-    
-     if (childTicketChoices.isVisible()) {
-        childTicketChoices.setVisible(false);
-        ticketTypeChoices.setVisible(true);  // Display ticketTypeChoices after childTicketChoices
-        backButton.setVisible(true);
-        return;
-    }
-     
-    if (ticketTypeChoices.isVisible()) {
-         if ("Select type of tickets".equals(ticketTypeChoices.getSelectedItem())) {
-            JOptionPane.showMessageDialog(frame, "Please select a valid type of ticket.");
-            return; // Do not proceed to next step
-        }
-        ticketTypeChoices.setVisible(false);
-        nameInput.setVisible(true);  // Should proceed to name input instead of looping back to child tickets
-        backButton.setVisible(true);
-        return;
-    }
-
-    if (childTicketChoices.isVisible()) {
-         if ("Choose child tickets".equals(childTicketChoices.getSelectedItem())) {
-            JOptionPane.showMessageDialog(frame, "Please select a valid number of child tickets.");
-            return; // Do not proceed to next step
-        }
-    childTicketChoices.setVisible(false);
-    nameInput.setVisible(true);  // Proceed to name input
-    backButton.setVisible(true);
-    return;
-}
-
-    if (nameInput.isVisible()) {
-        nameInput.setVisible(false);
-        phoneInput.setVisible(true);
-        backButton.setVisible(true);
-        frame.revalidate();
-        frame.repaint();
-        return;
-    }
-
-    if (phoneInput.isVisible()) {
-        String enteredPhone = phoneInput.getText();
-    try {
-        Long.parseLong(enteredPhone);
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(frame, "Please enter a valid phone number (numeric only).");
-        return;
-    }
-        
-        phoneInput.setVisible(false);
-        emailInput.setVisible(true);
-        backButton.setVisible(true);
-        frame.revalidate();
-        frame.repaint();
-        return;
-    }
-
-    if (emailInput.isVisible()) {
-        emailInput.setVisible(false);
-        promoCodeLabel.setVisible(true);
-        promoCodeInput.setVisible(true);
-        backButton.setVisible(true);
-        frame.revalidate();
-        frame.repaint();
-        return;
-    }
-
-    if (promoCodeLabel.isVisible() && promoCodeInput.isVisible()) {
-        promoCodeLabel.setVisible(false);
-        promoCodeInput.setVisible(false);
-        confirmButton.setVisible(true);
-        nextButton.setVisible(false);
-        backButton.setVisible(false);
-        frame.revalidate();
-        frame.repaint();
-    }
-}
-
-    
-    
     
     public void display() {
+        loadMoviesIntoComboBox();
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        
+    private JTextField createTextFieldWithPlaceholder(String placeholder, int gridy) {
+        JTextField textField = new JTextField(placeholder);
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().isEmpty()) {
+                    textField.setText(placeholder);
+                }
+            }
+        });
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0; // Set the gridx property
+        c.gridy = gridy;
+        return textField;
+    }
+
+    private void applyPromoCode() {
+        while (true) {
+            int result = JOptionPane.showConfirmDialog(frame, "Do you have a promo code?", "Promo Code", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                String code = JOptionPane.showInputDialog(frame, "Please enter the promo code:");
+                if (promoCodeValidator.isValidPromoCode(code)) {
+                    appliedPromoCode = promoCodeValidator.getPromoCode(code);
+                    double discountAmount = appliedPromoCode.discount(totalPrice);
+                    double discountedTotal = totalPrice - discountAmount;
+                    
+                    String discountDescription = "";
+                    if (appliedPromoCode instanceof PercentageDiscountPromo) {
+                        discountDescription = ((PercentageDiscountPromo) appliedPromoCode).getDiscountDescription();
+                    } else if (appliedPromoCode instanceof FixedDiscountPromo) {
+                        discountDescription = ((FixedDiscountPromo) appliedPromoCode).getDiscountDescription();
+                    }
+                    JOptionPane.showMessageDialog(frame, "Promo Code " + code + " Applied");
+                    totalCostLabel.setText("Total: $" + totalPrice + " (" + discountDescription + "), Tickets: " + totalTickets + ", Discounted Total: $" + discountedTotal);
+                    
+                    break; // Exit the loop if the promo code is valid
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid Promo Code", "Error", JOptionPane.ERROR_MESSAGE);
+                    // The loop will continue, asking the user again
+                }
+            } else {
+                break; // Exit the loop if the user chooses not to enter a promo code
+            }
+        }
+    }
+
+    private double calculateDiscount(double total, double discountPercentage) {
+        return total * (discountPercentage / 100);
     }
     
-    
-private void handleBackButton() {
-    
-    if (confirmButton.isVisible()) {
-        confirmButton.setVisible(false);
-        emailInput.setVisible(true);
-        backButton.setVisible(true);
-        return;
+    private void handleNextButton() {
+        if (mainMenuOptions.isVisible()) {
+            String selectedOption = (String) mainMenuOptions.getSelectedItem();
+            mainMenuOptions.setVisible(false);
+            if ("Look up an existing booking".equals(selectedOption)) {
+                phoneNumberLookupField.setVisible(true);
+                searchButton.setVisible(true);
+            } else if ("Make a new booking".equals(selectedOption)) {
+                movieChoices.setVisible(true);
+            }
+            backButton.setVisible(true);
+            return;
+        }
+
+        if (movieChoices.isVisible()) {
+            if ("Select a movie".equals(movieChoices.getSelectedItem())) {
+                JOptionPane.showMessageDialog(frame, "Please select a valid movie from the list.");
+                return;
+            }
+            movieChoices.setVisible(false);
+            dateTimeChoices.setVisible(true);
+            return;
+        }
+
+        if (dateTimeChoices.isVisible()) {
+            if ("Select date and time".equals(dateTimeChoices.getSelectedItem())) {
+                JOptionPane.showMessageDialog(frame, "Please select a valid date and time.");
+                return;
+            }
+            dateTimeChoices.setVisible(false);
+            ticketCountChoices.setVisible(true);
+            return;
+        }
+
+        if (ticketCountChoices.isVisible()) {
+            if ("Select Adult Tickets".equals(ticketCountChoices.getSelectedItem())) {
+                JOptionPane.showMessageDialog(frame, "Please select a valid number of adult tickets.");
+                return;
+            }
+            ticketCountChoices.setVisible(false);
+            childTicketChoices.setVisible(true);
+            return;
+        }
+
+        if (childTicketChoices.isVisible()) {
+            if ("Choose child tickets".equals(childTicketChoices.getSelectedItem())) {
+                JOptionPane.showMessageDialog(frame, "Please select a valid number of child tickets.");
+                return;
+            }
+            childTicketChoices.setVisible(false);
+            ticketTypeChoices.setVisible(true);
+            return;
+        }
+
+        if (ticketTypeChoices.isVisible()) {
+            if ("Select type of tickets".equals(ticketTypeChoices.getSelectedItem())) {
+                JOptionPane.showMessageDialog(frame, "Please select a valid type of ticket.");
+                return; // Do not proceed to next step
+            }
+            ticketTypeChoices.setVisible(false);
+            applyPromoCode();
+            nameInput.setVisible(true);
+            return;
+        }
+
+        if (promoCodeLabel.isVisible() && promoCodeInput.isVisible()) {
+            String promoCode = promoCodeInput.getText().trim();
+            if (!promoCode.isEmpty()) {
+                // Apply promo code
+            }
+            promoCodeLabel.setVisible(false);
+            promoCodeInput.setVisible(false);
+            nameInput.setVisible(true);
+            return;
+        }
+
+        if (nameInput.isVisible()) {
+            if (nameInput.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please enter your name.");
+                return;
+            }
+            nameInput.setVisible(false);
+            phoneInput.setVisible(true);
+            return;
+        }
+
+        if (phoneInput.isVisible()) {
+            if (phoneInput.getText().trim().isEmpty() || !phoneInput.getText().matches("\\d+")) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid phone number.");
+                return;
+            }
+            phoneInput.setVisible(false);
+            emailInput.setVisible(true);
+            return;
+        }
+
+        if (emailInput.isVisible()) {
+            if (emailInput.getText().trim().isEmpty() || !emailInput.getText().matches(".+@.+\\..+")) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid email address.");
+                return;
+            }
+            emailInput.setVisible(false);
+            confirmButton.setVisible(true);
+            nextButton.setVisible(false);
+        }
     }
 
-    if (emailInput.isVisible()) {
-        emailInput.setVisible(false);
-        phoneInput.setVisible(true);
-        return;
+    private void handleBackButton() {
+        if (confirmButton.isVisible()) {
+            confirmButton.setVisible(false);
+            nextButton.setVisible(true);
+            emailInput.setVisible(true);
+            return;
+        }
+
+        if (emailInput.isVisible()) {
+            emailInput.setVisible(false);
+            phoneInput.setVisible(true);
+            return;
+        }
+
+        if (phoneInput.isVisible()) {
+            phoneInput.setVisible(false);
+            nameInput.setVisible(true);
+            return;
+        }
+
+        if (nameInput.isVisible()) {
+            nameInput.setVisible(false);
+            promoCodeLabel.setVisible(true);
+            promoCodeInput.setVisible(true);
+            return;
+        }
+
+        if (promoCodeLabel.isVisible() && promoCodeInput.isVisible()) {
+            promoCodeLabel.setVisible(false);
+            promoCodeInput.setVisible(false);
+            ticketTypeChoices.setVisible(true);
+            return;
+        }
+
+        if (ticketTypeChoices.isVisible()) {
+            ticketTypeChoices.setVisible(false);
+            childTicketChoices.setVisible(true);
+            return;
+        }
+
+        if (childTicketChoices.isVisible()) {
+            childTicketChoices.setVisible(false);
+            ticketCountChoices.setVisible(true);
+            return;
+        }
+
+        if (ticketCountChoices.isVisible()) {
+            ticketCountChoices.setVisible(false);
+            dateTimeChoices.setVisible(true);
+            return;
+        }
+
+        if (dateTimeChoices.isVisible()) {
+            dateTimeChoices.setVisible(false);
+            movieChoices.setVisible(true);
+            return;
+        }
+
+        if (movieChoices.isVisible()) {
+            movieChoices.setVisible(false);
+            mainMenuOptions.setVisible(true);
+            backButton.setVisible(false);
+            return;
+        }
+
+        if (phoneNumberLookupField.isVisible() && searchButton.isVisible()) {
+            phoneNumberLookupField.setVisible(false);
+            searchButton.setVisible(false);
+            mainMenuOptions.setVisible(true);
+            backButton.setVisible(false);
+        }
     }
 
-    if (phoneInput.isVisible()) {
-        phoneInput.setVisible(false);
-        nameInput.setVisible(true);
-        return;
-    }
-
-    if (nameInput.isVisible()) {
-        nameInput.setVisible(false);
-        childTicketChoices.setVisible(true);
-        return;
-    }
-
-    if (childTicketChoices.isVisible()) {
-    childTicketChoices.setVisible(false);
-    ticketTypeChoices.setVisible(true); 
-    return;
-}
-    
-     if (ticketTypeChoices.isVisible()) {
-        ticketTypeChoices.setVisible(false);
-        childTicketChoices.setVisible(true);  // Navigate back to child ticket choices
-        return;
-    }
-     
-     if (childTicketChoices.isVisible()) {
-        childTicketChoices.setVisible(false);
-        ticketCountChoices.setVisible(true);  // Navigate back to adult ticket choices
-        return;
-    }
-    
-    if (ticketCountChoices.isVisible()) {
-        ticketCountChoices.setVisible(false);
-        dateTimeChoices.setVisible(true);
-        backButton.setVisible(true);
-        return;
-    }
-
-    if (dateTimeChoices.isVisible()) {
-        dateTimeChoices.setVisible(false);
-        movieChoices.setVisible(true);
-        backButton.setVisible(false);
-        return;
-    }
-
-    if (movieChoices.isVisible()) {
-        movieChoices.setVisible(false);
+    private void resetToInitialState() {
         mainMenuOptions.setVisible(true);
-        return;
-    }
-
-    if (promoCodeLabel.isVisible() && promoCodeInput.isVisible()) {
+        mainMenuOptions.setSelectedIndex(0);
+        movieChoices.setVisible(false);
+        dateTimeChoices.setVisible(false);
+        ticketCountChoices.setVisible(false);
+        ticketTypeChoices.setVisible(false);
+        childTicketChoices.setVisible(false);
+        nameInput.setVisible(false);
+        phoneInput.setVisible(false);
+        emailInput.setVisible(false);
+        confirmButton.setVisible(false);
+        nextButton.setVisible(true);
+        backButton.setVisible(false);
         promoCodeLabel.setVisible(false);
         promoCodeInput.setVisible(false);
-        emailInput.setVisible(true);
-        backButton.setVisible(true);
-        return;
+        phoneNumberLookupField.setVisible(false);
+        searchButton.setVisible(false);
     }
 
-    
+    public static void main(String[] args) {
+    SwingUtilities.invokeLater(() -> {
+        BookingSystemGUI gui = new BookingSystemGUI();
+        gui.display();
+
+        try {
+            DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+            dbUtil.insertMovie(new Movie("Inception", "A thief who enters the dreams of others must perform the impossible."));
+            dbUtil.insertMovie(new Movie("The Matrix", "A computer hacker learns about the true nature of his reality and his role in the war against its controllers."));
+            dbUtil.printAllMovies();
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
+    });
 }
 
-    private void resetToInitialState() {//Resseter should function via  reset 
-    mainMenuOptions.setVisible(true);
-    mainMenuOptions.setSelectedIndex(0); 
-    
-    movieChoices.setVisible(false);
-    movieChoices.setSelectedIndex(0);
-    
-    dateTimeChoices.setVisible(false);
-    dateTimeChoices.setSelectedIndex(0);
-    
-    ticketCountChoices.setVisible(false);
-    ticketCountChoices.setSelectedIndex(0);
-    
-    ticketTypeChoices.setVisible(false);
-    ticketTypeChoices.setSelectedIndex(0);
-    
-    nameInput.setVisible(false);
-    nameInput.setText("Enter your name");
-    
-    phoneInput.setVisible(false);
-    phoneInput.setText("Enter your phone number");
-    
-    emailInput.setVisible(false);
-    emailInput.setText("Enter your email");
-    
-    nextButton.setVisible(true);
-    confirmButton.setVisible(false);
-    backButton.setVisible(false);
-    
-    promoCodeLabel.setVisible(false);
-    promoCodeInput.setVisible(false);
-    
-    childTicketChoices.setVisible(false);
-    childTicketChoices.setSelectedIndex(0);  
-
-    promoCodeLabel.setVisible(false);  
-    promoCodeInput.setVisible(false);  
-    promoCodeInput.setText("Enter promo code here");
-    
-}
-    
 }

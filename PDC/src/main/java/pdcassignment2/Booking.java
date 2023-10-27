@@ -22,7 +22,8 @@ public class Booking {
     private String phoneNumber;
     private String email;
     private double totalPrice;
-
+    private int childTicketQuantity;
+    
     public Booking() {
         // Default constructor
     }
@@ -126,6 +127,10 @@ public class Booking {
 
     public double getTotalPrice() {
         return totalPrice;
+    }
+    
+    public void setChildTicketQuantity(int childTicketQuantity) {
+        this.childTicketQuantity = childTicketQuantity;
     }
 
     public void setTotalPrice(double totalPrice) {

@@ -16,6 +16,10 @@ public class FixedDiscountPromo implements PromoCode {
     public FixedDiscountPromo(double discountAmount) {
         this.discountAmount = discountAmount;
     }
+    
+    public String getDiscountDescription() {
+        return "$" + discountAmount + " off";
+    }
 
     @Override
     public double discount(double originalAmount) {
