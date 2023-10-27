@@ -217,11 +217,51 @@ public class BookingSystemGUI {
         });
 
         confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement booking confirmation functionality here
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+            
+                // 1. Gather Booking Information
+                String fullName = nameInput.getText().trim();
+                String phoneNumber = phoneInput.getText().trim();
+                String email = emailInput.getText().trim();
+                String movieTitle = (String) movieChoices.getSelectedItem();
+                String showTime = (String) dateTimeChoices.getSelectedItem();
+                String ticketType = (String) ticketTypeChoices.getSelectedItem();
+                int adultTickets = Integer.parseInt((String) ticketCountChoices.getSelectedItem());
+                int childTickets = Integer.parseInt((String) childTicketChoices.getSelectedItem());
+                int totalTickets = adultTickets + childTickets;
+                //double totalPrice = calculateTotalPrice(); 
+
+                // 2. Create a Booking Object
+                Booking booking = new Booking();
+                booking.setFullName(fullName);
+                booking.setPhoneNumber(phoneNumber);
+                booking.setEmail(email);
+                booking.setMovieTitle(movieTitle);
+                booking.setShowTime(showTime);
+                booking.setTicketType(ticketType);
+                booking.setTicketQuantity(totalTickets);
+                booking.setTotalPrice(totalPrice);
+
+                // 3. Save the Booking to the Database
+                DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+                boolean success = dbUtil.insertBooking(booking);
+
+                // 4. Update the GUI
+                if (success) {
+                    JOptionPane.showMessageDialog(frame, "Booking successful!");
+                    resetToInitialState();
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Booking failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (DatabaseException ex) {
+                JOptionPane.showMessageDialog(frame, "An error occurred while saving the booking.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Invalid number format.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        });
+        }
+    });
 
         restartButton.addActionListener(new ActionListener() {
             @Override
