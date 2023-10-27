@@ -329,8 +329,11 @@ public class BookingSystemGUI {
                 nextButton.setVisible(false);
                 quitButton.setVisible(false);
                 backButton.setVisible(false);
+                restartButton.setVisible(true);
             } else if ("Make a new booking".equals(selectedOption)) {
                 movieChoices.setVisible(true);
+                backButton.setVisible(true);
+                restartButton.setVisible(true);
             }
             //backButton.setVisible(true);
             return;
@@ -423,7 +426,7 @@ public class BookingSystemGUI {
 
         if (phoneInput.isVisible()) {
             if (phoneInput.getText().trim().isEmpty() || !phoneInput.getText().matches("\\d+")) {
-                JOptionPane.showMessageDialog(frame, "Please enter a valid phone number.");
+                JOptionPane.showMessageDialog(frame, "Please enter a valid phone number with digits only.");
                 return;
             }
             phoneInput.setVisible(false);
