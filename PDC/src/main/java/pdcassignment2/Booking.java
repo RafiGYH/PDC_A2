@@ -23,7 +23,7 @@ public class Booking {
     private String email;
     private double totalPrice;
     private int childTicketQuantity;
-    
+
     public Booking() {
         // Default constructor
     }
@@ -128,7 +128,7 @@ public class Booking {
     public double getTotalPrice() {
         return totalPrice;
     }
-    
+
     public void setChildTicketQuantity(int childTicketQuantity) {
         this.childTicketQuantity = childTicketQuantity;
     }
@@ -139,12 +139,16 @@ public class Booking {
 
     @Override
     public String toString() {
-        return "Booking ID: " + id + "\n"
+        String titleWithID = (id > 0) ? "Booking #" + Integer.toString(id) + " Details:\n" : ""; //If booking ID assigned, display id and title, otherwise diplay nothing
+
+        String result = titleWithID
                 + "Name: " + fullName + "\n"
                 + "Phone Number: " + phoneNumber + "\n"
                 + "Email: " + email + "\n"
                 + ticketQuantity + "x " + ticketType + " Tickets for " + movieTitle + " at " + showTime + "\n"
+                + "(" + (ticketQuantity - childTicketQuantity) + "x Adults | " + childTicketQuantity + "x Children)\n"
                 + "Total Price: $" + totalPrice;
+        return result;
     }
 
     public static Booking fromString(String str) {

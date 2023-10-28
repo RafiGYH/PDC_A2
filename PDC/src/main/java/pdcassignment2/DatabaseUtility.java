@@ -53,6 +53,10 @@ public class DatabaseUtility {
     public void initialiseDatabase() throws DatabaseException {
         DatabaseUtility dbUtil = getInstance();
         try ( Statement stmt = dbUtil.conn.createStatement()) {
+            
+             String dropTableSQL = "DROP TABLE Bookings";
+    stmt.executeUpdate(dropTableSQL);
+    
             // Check if the Bookings table exists
             ResultSet rs = conn.getMetaData().getTables(null, null, "BOOKINGS", null);
 
@@ -63,7 +67,7 @@ public class DatabaseUtility {
                         + "FullName VARCHAR(255),"
                         + "PhoneNumber VARCHAR(15),"
                         + "Email VARCHAR(255),"
-                        + "BookingTime VARCHAR(255),"
+                        + "BookingTime VARCHAR(50),"
                         + "Movie VARCHAR(255),"
                         + "CinemaType VARCHAR(50),"
                         + "TotalTickets INT,"
@@ -129,7 +133,8 @@ public class DatabaseUtility {
             stmt.setString(1, booking.getFullName());
             stmt.setString(2, booking.getPhoneNumber());
             stmt.setString(3, booking.getEmail());
-            stmt.setString(4, booking.getShowTime());
+            stmt.setString(4, "2024-10-31 12:00:00");
+            //stmt.setString(4, booking.getShowTime());
             stmt.setString(5, booking.getMovieTitle());
             stmt.setString(6, booking.getTicketType());
             stmt.setInt(7, booking.getTicketQuantity());
