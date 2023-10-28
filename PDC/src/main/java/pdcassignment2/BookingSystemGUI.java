@@ -39,6 +39,10 @@ public class BookingSystemGUI {
     private double discountedTotal;
 
     public BookingSystemGUI() {
+         
+        totalCostLabel = new JLabel("Total Cost: $0");
+        
+        
         frame = new JFrame("Cinema Booking System");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 400);
@@ -217,51 +221,44 @@ public class BookingSystemGUI {
         });
 
         confirmButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-            
-                // 1. Gather Booking Information
-                String fullName = nameInput.getText().trim();
-                String phoneNumber = phoneInput.getText().trim();
-                String email = emailInput.getText().trim();
-                String movieTitle = (String) movieChoices.getSelectedItem();
-                String showTime = (String) dateTimeChoices.getSelectedItem();
-                String ticketType = (String) ticketTypeChoices.getSelectedItem();
-                int adultTickets = Integer.parseInt((String) ticketCountChoices.getSelectedItem());
-                int childTickets = Integer.parseInt((String) childTicketChoices.getSelectedItem());
-                int totalTickets = adultTickets + childTickets;
-                //double totalPrice = calculateTotalPrice(); 
+            @Override
+    public void actionPerformed(ActionEvent e) {
+        String fullName = nameInput.getText();
+        String phoneNumber = phoneInput.getText();
+        String email = emailInput.getText();
+        String movieTitle = (String) movieChoices.getSelectedItem();
+        String showTime = (String) dateTimeChoices.getSelectedItem();
+        System.out.println(showTime);
+        String ticketType = (String) ticketTypeChoices.getSelectedItem();
+        int adultTicketCount = Integer.parseInt((String) ticketCountChoices.getSelectedItem());
+        int childTicketCount = Integer.parseInt((String) childTicketChoices.getSelectedItem());
+        double totalPrice = discountedTotal;
 
-                // 2. Create a Booking Object
-                Booking booking = new Booking();
-                booking.setFullName(fullName);
-                booking.setPhoneNumber(phoneNumber);
-                booking.setEmail(email);
-                booking.setShowTime(showTime);
-                booking.setMovieTitle(movieTitle);
-                booking.setTicketType(ticketType);
-                booking.setTicketQuantity(totalTickets);
-                booking.setTotalPrice(totalPrice);
+        Booking newBooking = new Booking();
+        newBooking.setFullName(fullName);
+        newBooking.setPhoneNumber(phoneNumber);
+        newBooking.setEmail(email);
+        newBooking.setMovieTitle(movieTitle);
+        newBooking.setShowTime(showTime);
+        newBooking.setTicketType(ticketType);
+        newBooking.setTicketQuantity(adultTicketCount + childTicketCount);
+        newBooking.setTotalPrice(totalPrice);
 
-                // 3. Save the Booking to the Database
-                DatabaseUtility dbUtil = DatabaseUtility.getInstance();
-                boolean success = dbUtil.insertBooking(booking);
-
-                // 4. Update the GUI
-                if (success) {
-                    JOptionPane.showMessageDialog(frame, "Booking successful!");
-                    resetToInitialState();
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Booking failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (DatabaseException ex) {
-                JOptionPane.showMessageDialog(frame, "An error occurred while saving the booking.", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid number format.", "Error", JOptionPane.ERROR_MESSAGE);
+        // Insert the new booking into the database
+        try {
+            DatabaseUtility dbUtil = DatabaseUtility.getInstance();
+            boolean success = dbUtil.insertBooking(newBooking);
+            if (success) {
+                JOptionPane.showMessageDialog(frame, "Booking added successfully!");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Failed to add booking. Please try again.");
             }
+        } catch (DatabaseException dbException) {
+            dbException.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "An error occurred while adding the booking: " + dbException.getMessage());
         }
-    });
+    }
+        });
 
         restartButton.addActionListener(new ActionListener() {
             @Override
@@ -324,39 +321,32 @@ public class BookingSystemGUI {
     }
 
     private void applyPromoCode(String code) {
-        /*while (true) {
-            int result = JOptionPane.showConfirmDialog(frame, "Do you have a promo code?", "Promo Code", JOptionPane.YES_NO_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
-                String code = JOptionPane.showInputDialog(frame, "Please enter the promo code:");*/
-        if (promoCodeValidator.isValidPromoCode(code)) {
-            appliedPromoCode = promoCodeValidator.getPromoCode(code);
-            double discountAmount = appliedPromoCode.discount(totalPrice);
-            double discountedTotal = totalPrice - discountAmount;
+    if (promoCodeValidator.isValidPromoCode(code)) {
 
-            String discountDescription = "";
-            if (appliedPromoCode instanceof PercentageDiscountPromo) {
-                discountDescription = ((PercentageDiscountPromo) appliedPromoCode).getDiscountDescription();
-            } else if (appliedPromoCode instanceof FixedDiscountPromo) {
-                discountDescription = ((FixedDiscountPromo) appliedPromoCode).getDiscountDescription();
-            }
-            JOptionPane.showMessageDialog(frame, "Promo Code " + code + " Applied");
+        appliedPromoCode = promoCodeValidator.getPromoCode(code);
+        double discountAmount = appliedPromoCode.discount(totalPrice);
+        double discountedTotal = totalPrice - discountAmount;
+
+        String discountDescription = "";
+        if (appliedPromoCode instanceof PercentageDiscountPromo) {
+            discountDescription = ((PercentageDiscountPromo) appliedPromoCode).getDiscountDescription();
+        } else if (appliedPromoCode instanceof FixedDiscountPromo) {
+            discountDescription = ((FixedDiscountPromo) appliedPromoCode).getDiscountDescription();
+        }
+
+        JOptionPane.showMessageDialog(frame, "Promo Code " + code + " Applied");
+
+        if (totalCostLabel != null) { 
             totalCostLabel.setText("Total: $" + totalPrice + " (" + discountDescription + "), Tickets: " + totalTickets + ", Discounted Total: $" + discountedTotal);
-
-            //break; // Exit the loop if the promo code is valid
         } else {
-            JOptionPane.showMessageDialog(frame, "Invalid Promo Code", "Error", JOptionPane.ERROR_MESSAGE);
-            // The loop will continue, asking the user again
+            System.out.println("totalCostLabel is null!");
         }
-        /*  } else {
-                break; // Exit the loop if the user chooses not to enter a promo code
-            }
-        }
-        nameInput.setVisible(true);*/
+    } else {
+        System.out.println("Invalid promo code"); 
+        JOptionPane.showMessageDialog(frame, "Invalid Promo Code", "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
 
-    private double calculateDiscount(double total, double discountPercentage) {
-        return total * (discountPercentage / 100);
-    }
 
     private void handleNextButton() {
 
@@ -365,11 +355,12 @@ public class BookingSystemGUI {
             mainMenuOptions.setVisible(false);
             if ("Look up an existing booking".equals(selectedOption)) {
                 phoneNumberLookupField.setVisible(true);
+                restartButton.setVisible(false);
                 searchButton.setVisible(true);
                 nextButton.setVisible(false);
                 quitButton.setVisible(false);
-                backButton.setVisible(false);
-                restartButton.setVisible(true);
+                backButton.setVisible(true);
+                
             } else if ("Make a new booking".equals(selectedOption)) {
                 movieChoices.setVisible(true);
                 backButton.setVisible(true);
@@ -396,6 +387,7 @@ public class BookingSystemGUI {
                 JOptionPane.showMessageDialog(frame, "Please select a valid date and time.");
                 return;
             }
+            
             dateTimeChoices.setVisible(false);
             ticketCountChoices.setVisible(true);
             backButton.setVisible(true);
@@ -490,6 +482,17 @@ public class BookingSystemGUI {
     }
 
     private void handleBackButton() {
+        
+        if (phoneNumberLookupField.isVisible() && searchButton.isVisible()) {
+    phoneNumberLookupField.setVisible(false);
+    nextButton.setVisible(true); 
+    quitButton.setVisible(true); 
+    searchButton.setVisible(false);
+    mainMenuOptions.setVisible(true);
+    backButton.setVisible(false);
+    restartButton.setVisible(true); 
+}
+        
         if (confirmButton.isVisible()) {
             confirmButton.setVisible(false);
             nextButton.setVisible(true);
@@ -581,6 +584,7 @@ public class BookingSystemGUI {
         phoneNumberLookupField.setVisible(false);
         searchButton.setVisible(false);
         restartButton.setVisible(false);
+        quitButton.setVisible(true);
     }
 
     public static void main(String[] args) {
