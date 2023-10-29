@@ -146,7 +146,6 @@ public class Booking {
                 + "Phone Number: " + phoneNumber + "\n"
                 + "Email: " + email + "\n"
                 + ticketQuantity + "x " + ticketType + " Tickets for " + movieTitle + " at " + showTime + "\n"
-                + "(" + (ticketQuantity - childTicketQuantity) + "x Adults | " + childTicketQuantity + "x Children)\n"
                 + "Total Price: $" + totalPrice;
         return result;
     }
